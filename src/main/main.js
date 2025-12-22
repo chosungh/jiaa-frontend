@@ -3,6 +3,7 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 
 let tray = null;
+let popupWindow = null;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -10,7 +11,13 @@ if (started) {
 }
 
 const createPopupWindow = () => {
-  const popupWindow = new BrowserWindow({
+  if (popupWindow && !popupWindow.isDestroyed()) {
+    popupWindow.show();
+    popupWindow.focus();
+    return;
+  }
+
+  popupWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     frame: false,
@@ -19,7 +26,29 @@ const createPopupWindow = () => {
       contextIsolation: true,
     }
   });
-  popupWindow.loadFile(path.join(__dirname, 'popup.html'));
+
+  // Adjust path to point to renderer output
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    popupWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/popup.html`);
+  } else {
+    popupWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/popup.html`));
+  }
+
+  popupWindow.on('closed', () => {
+    popupWindow = null;
+  });
+};
+
+const togglePopupWindow = () => {
+  if (popupWindow && !popupWindow.isDestroyed()) {
+    if (popupWindow.isVisible()) {
+      popupWindow.close();
+    } else {
+      popupWindow.show();
+    }
+  } else {
+    createPopupWindow();
+  }
 };
 
 const createWindow = () => {
@@ -39,7 +68,7 @@ const createWindow = () => {
     alwaysOnTop: true,
     resizable: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, '../preload/preload.js'),
     },
   });
 
@@ -117,9 +146,9 @@ app.whenReady().then(() => {
 
   tray.setToolTip('Live2D Mascot');
 
-  // 좌클릭: 팝업 열기
+  // 좌클릭: 팝업 토글
   tray.on('click', () => {
-    createPopupWindow();
+    togglePopupWindow();
   });
 
   // 우클릭: 컨텍스트 메뉴 열기
@@ -140,11 +169,11 @@ app.whenReady().then(() => {
 
   // Dev environment path adjustment
   // In dev, __dirname is likely .../.vite/build/
-  // Source is .../src/monitor_processes.py
-  // We need to resolve the correct path.
-  let scriptPath = path.join(__dirname, '../src/monitor_processes.py');
+  // Source is .../src/main/main.js
+  // monitor_processes.py is in src/
+  let scriptPath = path.join(__dirname, '../../src/monitor_processes.py');
 
-  // If __dirname includes .vite/build, we need to go up two levels to get to project root, then into src
+  // If __dirname includes .vite/build, we need to go up two levels to get to project root then into src
   if (__dirname.includes('.vite/build')) {
     scriptPath = path.join(__dirname, '../../src/monitor_processes.py');
   }
