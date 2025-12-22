@@ -5,6 +5,9 @@ import started from 'electron-squirrel-startup';
 let tray = null;
 let loginWindow = null;
 
+
+
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
@@ -22,6 +25,7 @@ const createLoginWindow = () => {
     height: 720,
     frame: false,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
     }
@@ -51,6 +55,9 @@ const toggleLoginWindow = () => {
   }
 };
 
+
+
+
 const createWindow = () => {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   const windowWidth = 450;
@@ -68,7 +75,7 @@ const createWindow = () => {
     alwaysOnTop: true,
     resizable: false,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/preload.js'),
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -97,15 +104,80 @@ const createWindow = () => {
 
   // IPC Event for Login Window
   ipcMain.on('open-login', () => {
-    createLoginWindow();
+    console.log('[Main] open-login event received');
+    if (loginWindow && !loginWindow.isDestroyed()) {
+      if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/login.html`);
+      } else {
+        loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/login.html`));
+      }
+      loginWindow.show();
+    } else {
+      createLoginWindow();
+    }
+  });
+
+  // IPC Event for Signup Window
+  ipcMain.on('open-signup', () => {
+    console.log('[Main] open-signup event received');
+    if (loginWindow && !loginWindow.isDestroyed()) {
+      if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        // Log the URL being loaded for debugging
+        const url_to_load = `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/signup.html`;
+        console.log(`[Main] Loading Signup URL: ${url_to_load}`);
+        loginWindow.loadURL(url_to_load);
+      } else {
+        const file_to_load = path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/signup.html`);
+        console.log(`[Main] Loading Signup File: ${file_to_load}`);
+        loginWindow.loadFile(file_to_load);
+      }
+      loginWindow.show();
+    } else {
+      console.log('[Main] loginWindow does not exist, creating new one for signup');
+      createLoginWindow();
+      // Wait slightly for window creation (or use callback), but for simplicity:
+      setTimeout(() => {
+        if (loginWindow && !loginWindow.isDestroyed()) {
+          if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+            loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/signup.html`);
+          } else {
+            loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/signup.html`));
+          }
+        }
+      }, 500);
+    }
   });
 
   // IPC Event for Login Success
+  // IPC Event for Login Success
+  // IPC Event for Login Success
   ipcMain.on('login-success', (event, email) => {
     console.log(`[Main] User Logged In: ${email}`);
-    if (loginWindow) loginWindow.close();
-    mainWindow.show();
+
+    // Navigate loginWindow to Dashboard
+    if (loginWindow && !loginWindow.isDestroyed()) {
+      if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/dashboard.html`);
+      } else {
+        loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/dashboard.html`));
+      }
+    }
+
+    // Hide Avatar (Main Window) while Dashboard is open
+    mainWindow.hide();
   });
+
+  // IPC Event for Closing Dashboard (closes loginWindow)
+  ipcMain.on('close-dashboard', () => {
+    if (loginWindow && !loginWindow.isDestroyed()) {
+      loginWindow.close();
+    }
+    // Show Avatar (Main Window) when Dashboard closes
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show();
+    }
+  });
+
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {

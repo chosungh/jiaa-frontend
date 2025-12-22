@@ -8,7 +8,8 @@
     <!-- Inline style to ensure immediate background color before css loads to prevent white flash -->
     <style>
         body {
-            background: #333;
+            background: #1a1a1a;
+            color: #ffffff;
         }
     </style>
 </head>
@@ -17,19 +18,21 @@
     <!-- Optional Close Button -->
     <!-- <button class="close-btn" id="close-btn">&times;</button> -->
 
-    <div class="glass-container">
-        <h1>Welcome Back</h1>
-        <form id="login-form">
+    <div class="login-container">
+        <h1>로그인</h1>
+        <form id="login-form" novalidate>
             <div class="input-group">
-                <input type="email" id="email" placeholder="Email" required autocomplete="off">
+                <input type="email" id="email" required autocomplete="off" placeholder=" ">
+                <label for="email">아이디</label>
             </div>
             <div class="input-group">
-                <input type="password" id="password" placeholder="Password" required>
+                <input type="password" id="password" required placeholder=" ">
+                <label for="password">비밀번호</label>
             </div>
-            <button type="submit" class="login-btn">Login</button>
+            <button type="submit" class="login-btn">로그인</button>
         </form>
         <div class="footer">
-            Don't have an account? <a href="#">Sign Up</a>
+            <a id="signup-link">회원이 아니신가요?</a>
         </div>
     </div>
 

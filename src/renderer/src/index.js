@@ -53,4 +53,4 @@ const init = async () => {
 }
 
 // DOM이 완전히 로드된 후 실행
-window.addEventListener('DOMContentLoaded', init);  
+window.addEventListener('DOMContentLoaded', init);
