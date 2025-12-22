@@ -4,6 +4,7 @@ import started from 'electron-squirrel-startup';
 
 let tray = null;
 let loginWindow = null;
+let mainWindow = null;
 
 
 
@@ -32,10 +33,11 @@ const createLoginWindow = () => {
   });
 
   // Adjust path to point to renderer output
+  // Adjust path to point to renderer output
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/login.html`);
+    loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/login/login.html`);
   } else {
-    loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/login.html`));
+    loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/login/login.html`));
   }
 
   loginWindow.on('closed', () => {
@@ -64,7 +66,7 @@ const createWindow = () => {
   const windowHeight = 350;
 
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
     x: width - windowWidth,
@@ -79,124 +81,130 @@ const createWindow = () => {
     },
   });
 
-  // IPC Event for Click-through
-  ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win.setIgnoreMouseEvents(ignore, options);
-  });
-
-  // IPC Event for Context Menu
-  ipcMain.on('show-context-menu', (event) => {
-    const template = [
-      {
-        label: 'Hide Character',
-        click: () => { event.sender.getOwnerBrowserWindow().hide(); }
-      },
-      { type: 'separator' },
-      {
-        label: 'Quit',
-        click: () => { app.quit(); }
-      }
-    ];
-    const menu = Menu.buildFromTemplate(template);
-    menu.popup(BrowserWindow.fromWebContents(event.sender));
-  });
-
-  // IPC Event for Login Window
-  ipcMain.on('open-login', () => {
-    console.log('[Main] open-login event received');
-    if (loginWindow && !loginWindow.isDestroyed()) {
-      if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-        loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/login.html`);
-      } else {
-        loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/login.html`));
-      }
-      loginWindow.show();
-    } else {
-      createLoginWindow();
-    }
-  });
-
-  // IPC Event for Signup Window
-  ipcMain.on('open-signup', () => {
-    console.log('[Main] open-signup event received');
-    if (loginWindow && !loginWindow.isDestroyed()) {
-      if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-        // Log the URL being loaded for debugging
-        const url_to_load = `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/signup.html`;
-        console.log(`[Main] Loading Signup URL: ${url_to_load}`);
-        loginWindow.loadURL(url_to_load);
-      } else {
-        const file_to_load = path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/signup.html`);
-        console.log(`[Main] Loading Signup File: ${file_to_load}`);
-        loginWindow.loadFile(file_to_load);
-      }
-      loginWindow.show();
-    } else {
-      console.log('[Main] loginWindow does not exist, creating new one for signup');
-      createLoginWindow();
-      // Wait slightly for window creation (or use callback), but for simplicity:
-      setTimeout(() => {
-        if (loginWindow && !loginWindow.isDestroyed()) {
-          if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-            loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/signup.html`);
-          } else {
-            loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/signup.html`));
-          }
-        }
-      }, 500);
-    }
-  });
-
-  // IPC Event for Login Success
-  // IPC Event for Login Success
-  // IPC Event for Login Success
-  ipcMain.on('login-success', (event, email) => {
-    console.log(`[Main] User Logged In: ${email}`);
-
-    // Navigate loginWindow to Dashboard
-    if (loginWindow && !loginWindow.isDestroyed()) {
-      if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-        loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/dashboard.html`);
-      } else {
-        loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/dashboard.html`));
-      }
-    }
-
-    // Hide Avatar (Main Window) while Dashboard is open
-    mainWindow.hide();
-  });
-
-  // IPC Event for Closing Dashboard (closes loginWindow)
-  ipcMain.on('close-dashboard', () => {
-    if (loginWindow && !loginWindow.isDestroyed()) {
-      loginWindow.close();
-    }
-    // Show Avatar (Main Window) when Dashboard closes
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.show();
-    }
-  });
-
-
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    mainWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/avatar/index.html`);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/avatar/index.html`));
   }
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
 
   return mainWindow;
 };
+
+// --- IPC Handlers ---
+
+// IPC Event for Click-through
+ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && !win.isDestroyed()) {
+    win.setIgnoreMouseEvents(ignore, options);
+  }
+});
+
+// IPC Event for Context Menu
+ipcMain.on('show-context-menu', (event) => {
+  const template = [
+    {
+      label: 'Hide Character',
+      click: () => {
+        const win = event.sender.getOwnerBrowserWindow();
+        if (win && !win.isDestroyed()) win.hide();
+      }
+    },
+    { type: 'separator' },
+    {
+      label: 'Quit',
+      click: () => { app.quit(); }
+    }
+  ];
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && !win.isDestroyed()) {
+    const menu = Menu.buildFromTemplate(template);
+    menu.popup(win);
+  }
+});
+
+// IPC Event for Login Window
+ipcMain.on('open-login', () => {
+  console.log('[Main] open-login event received');
+  if (loginWindow && !loginWindow.isDestroyed()) {
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+      loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/login/login.html`);
+    } else {
+      loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/login/login.html`));
+    }
+    loginWindow.show();
+  } else {
+    createLoginWindow();
+  }
+});
+
+// IPC Event for Signup Window
+ipcMain.on('open-signup', () => {
+  console.log('[Main] open-signup event received');
+  if (loginWindow && !loginWindow.isDestroyed()) {
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+      // Log the URL being loaded for debugging
+      const url_to_load = `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/signup/signup.html`;
+      console.log(`[Main] Loading Signup URL: ${url_to_load}`);
+      loginWindow.loadURL(url_to_load);
+    } else {
+      const file_to_load = path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/signup/signup.html`);
+      console.log(`[Main] Loading Signup File: ${file_to_load}`);
+      loginWindow.loadFile(file_to_load);
+    }
+    loginWindow.show();
+  } else {
+    console.log('[Main] loginWindow does not exist, creating new one for signup');
+    createLoginWindow();
+    // Wait slightly for window creation (or use callback), but for simplicity:
+    setTimeout(() => {
+      if (loginWindow && !loginWindow.isDestroyed()) {
+        if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+          loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/signup/signup.html`);
+        } else {
+          loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/signup/signup.html`));
+        }
+      }
+    }, 500);
+  }
+});
+
+// IPC Event for Login Success
+ipcMain.on('login-success', (event, email) => {
+  console.log(`[Main] User Logged In: ${email}`);
+
+  // Navigate loginWindow to Dashboard
+  if (loginWindow && !loginWindow.isDestroyed()) {
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+      loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/dashboard/dashboard.html`);
+    } else {
+      loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/dashboard/dashboard.html`));
+    }
+  }
+
+  // Hide Avatar (Main Window) while Dashboard is open
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.hide();
+  }
+});
+
+// IPC Event for Closing Dashboard (closes loginWindow)
+ipcMain.on('close-dashboard', () => {
+  if (loginWindow && !loginWindow.isDestroyed()) {
+    loginWindow.close();
+  }
+  // Show Avatar (Main Window) when Dashboard closes
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show();
+  }
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  const mainWindow = createWindow();
+  createWindow();
   // Start hidden, wait for login
   mainWindow.hide();
 
@@ -212,10 +220,12 @@ app.whenReady().then(() => {
     {
       label: 'Show/Hide Character',
       click: () => {
-        if (mainWindow.isVisible()) {
-          mainWindow.hide();
-        } else {
-          mainWindow.show();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          if (mainWindow.isVisible()) {
+            mainWindow.hide();
+          } else {
+            mainWindow.show();
+          }
         }
       }
     },
