@@ -3,21 +3,21 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 
 let tray = null;
-let popupWindow = null;
+let loginWindow = null;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
 
-const createPopupWindow = () => {
-  if (popupWindow && !popupWindow.isDestroyed()) {
-    popupWindow.show();
-    popupWindow.focus();
+const createLoginWindow = () => {
+  if (loginWindow && !loginWindow.isDestroyed()) {
+    loginWindow.show();
+    loginWindow.focus();
     return;
   }
 
-  popupWindow = new BrowserWindow({
+  loginWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     frame: false,
@@ -29,25 +29,25 @@ const createPopupWindow = () => {
 
   // Adjust path to point to renderer output
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    popupWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/popup.html`);
+    loginWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/login.html`);
   } else {
-    popupWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/popup.html`));
+    loginWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/login.html`));
   }
 
-  popupWindow.on('closed', () => {
-    popupWindow = null;
+  loginWindow.on('closed', () => {
+    loginWindow = null;
   });
 };
 
-const togglePopupWindow = () => {
-  if (popupWindow && !popupWindow.isDestroyed()) {
-    if (popupWindow.isVisible()) {
-      popupWindow.close();
+const toggleLoginWindow = () => {
+  if (loginWindow && !loginWindow.isDestroyed()) {
+    if (loginWindow.isVisible()) {
+      loginWindow.close();
     } else {
-      popupWindow.show();
+      loginWindow.show();
     }
   } else {
-    createPopupWindow();
+    createLoginWindow();
   }
 };
 
@@ -95,9 +95,16 @@ const createWindow = () => {
     menu.popup(BrowserWindow.fromWebContents(event.sender));
   });
 
-  // IPC Event for Popup Window
-  ipcMain.on('open-popup', () => {
-    createPopupWindow();
+  // IPC Event for Login Window
+  ipcMain.on('open-login', () => {
+    createLoginWindow();
+  });
+
+  // IPC Event for Login Success
+  ipcMain.on('login-success', (event, email) => {
+    console.log(`[Main] User Logged In: ${email}`);
+    if (loginWindow) loginWindow.close();
+    mainWindow.show();
   });
 
   // and load the index.html of the app.
@@ -108,7 +115,7 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   return mainWindow;
 };
@@ -118,6 +125,11 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   const mainWindow = createWindow();
+  // Start hidden, wait for login
+  mainWindow.hide();
+
+  // Open Login Window immediately
+  createLoginWindow();
 
   // Tray Icon 생성
   const iconPath = path.join(__dirname, '../../public/tray-icon.png');
@@ -146,9 +158,9 @@ app.whenReady().then(() => {
 
   tray.setToolTip('Live2D Mascot');
 
-  // 좌클릭: 팝업 토글
+  // 좌클릭: 로그인/설정 토글 (현재는 재로그인 등 용도)
   tray.on('click', () => {
-    togglePopupWindow();
+    toggleLoginWindow();
   });
 
   // 우클릭: 컨텍스트 메뉴 열기

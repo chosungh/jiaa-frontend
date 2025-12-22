@@ -7,8 +7,8 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                main_window: resolve(__dirname, 'src/renderer/index.html'),
-                popup: resolve(__dirname, 'src/renderer/popup.html'),
+                main: resolve(__dirname, 'src/renderer/index.html'),
+                login: resolve(__dirname, 'src/renderer/login.html'),
             },
         },
     },

@@ -34,9 +34,11 @@ const init = async () => {
     // 5. 스테이지에 추가
     app.stage.addChild(live2dSprite);
 
-    // 좌클릭 시 팝업 열기 (이벤트 활성화: eventMode static)
-    // Hover Petting을 위해 이미 설정되어 있지만 명시적으로 확인
+    // 좌클릭 시 로그인/설정 열기 (이벤트 활성화: eventMode static)
     live2dSprite.eventMode = 'static';
+    live2dSprite.on('pointertap', () => {
+      window.electronAPI?.openLogin();
+    });
 
     // 우클릭 컨텍스트 메뉴
     window.addEventListener('contextmenu', (e) => {

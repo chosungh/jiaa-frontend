@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="./src/login.css">
+    <!-- Inline style to ensure immediate background color before css loads to prevent white flash -->
+    <style>
+        body {
+            background: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Optional Close Button -->
+    <!-- <button class="close-btn" id="close-btn">&times;</button> -->
+
+    <div class="glass-container">
+        <h1>Welcome Back</h1>
+        <form id="login-form">
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Email" required autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div class="footer">
+            Don't have an account? <a href="#">Sign Up</a>
+        </div>
+    </div>
+
+    <script type="module" src="./src/login.js"></script>
+</body>
+
+</html>
