@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Login from './Login';
+import Signin from './Signin';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <Login />
+        <Signin />
     </React.StrictMode>
 );

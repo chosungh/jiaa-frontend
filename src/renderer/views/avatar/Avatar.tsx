@@ -45,7 +45,7 @@ const Avatar: React.FC = () => {
                 // Events
                 live2dSprite.eventMode = 'static';
                 live2dSprite.on('pointertap', () => {
-                    window.electronAPI?.openLogin();
+                    window.electronAPI?.openSignin();
                 });
 
                 const handleContextMenu = (e: MouseEvent) => {

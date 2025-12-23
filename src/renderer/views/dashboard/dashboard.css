@@ -13,7 +13,7 @@ html {
     /* Prevent horizontal scroll */
 }
 
-/* Close Button (Consistent with Login) */
+/* Close Button (Consistent with Signin) */
 .close-btn {
     position: absolute;
     top: 15px;

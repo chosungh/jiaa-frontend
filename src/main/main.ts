@@ -13,10 +13,10 @@ if (started) {
 
 app.whenReady().then(() => {
   const avatarWindow = createAvatarWindow();
-  // Start hidden, wait for login
+  // Start hidden, wait for signin
   avatarWindow.hide();
 
-  // Open Main Window (Login) immediately
+  // Open Main Window (Signin) immediately
   createMainWindow();
 
   // Register Handlers

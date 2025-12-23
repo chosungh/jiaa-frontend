@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import './login.css';
+import './signin.css';
 
-const Login: React.FC = () => {
+const Signin: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (email && password) {
-            console.log('Login attempt:', { email, password: '***' });
-            window.electronAPI?.loginSuccess(email);
+            console.log('Signin attempt:', { email, password: '***' });
+            window.electronAPI?.signinSuccess(email);
         } else {
             alert('Please fill in all fields');
         }
@@ -20,9 +20,9 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="login-container">
+        <div className="signin-container">
             <h1>로그인</h1>
-            <form id="login-form" onSubmit={handleSubmit} noValidate>
+            <form id="signin-form" onSubmit={handleSubmit} noValidate>
                 <div className="input-group">
                     <input
                         type="email"
@@ -46,7 +46,7 @@ const Login: React.FC = () => {
                     />
                     <label htmlFor="password">비밀번호</label>
                 </div>
-                <button type="submit" className="login-btn">로그인</button>
+                <button type="submit" className="signin-btn">로그인</button>
             </form>
             <div className="footer">
                 <a id="signup-link" onClick={handleSignup} style={{ cursor: 'pointer' }}>회원이 아니신가요?</a>
@@ -55,4 +55,4 @@ const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default Signin;

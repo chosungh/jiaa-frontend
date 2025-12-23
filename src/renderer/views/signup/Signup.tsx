@@ -16,16 +16,16 @@ const Signup: React.FC = () => {
 
         if (email && password) {
             console.log('Signup attempt:', { email });
-            // For now, just simulate success and go back to login or auto-login
-            alert('Account created! Please log in.');
-            window.electronAPI?.openLogin();
+            // For now, just simulate success and go back to signin or auto-signin
+            alert('Account created! Please signin.');
+            window.electronAPI?.openSignin();
         } else {
             alert('Please fill in all fields');
         }
     };
 
-    const handleBackToLogin = () => {
-        window.electronAPI?.openLogin();
+    const handleBackToSignin = () => {
+        window.electronAPI?.openSignin();
     };
 
     return (
@@ -69,7 +69,7 @@ const Signup: React.FC = () => {
                 <button type="submit" className="signup-btn">회원가입</button>
             </form>
             <div className="footer">
-                <a id="back-to-login" onClick={handleBackToLogin} style={{ cursor: 'pointer' }}>이미 회원이신가요?</a>
+                <a id="back-to-signin" onClick={handleBackToSignin} style={{ cursor: 'pointer' }}>이미 회원이신가요?</a>
             </div>
         </div>
     );

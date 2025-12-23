@@ -9,7 +9,7 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                main: resolve(__dirname, 'src/renderer/views/avatar/index.html'),
+                avatar: resolve(__dirname, 'src/renderer/views/avatar/index.html'),
                 signin: resolve(__dirname, 'src/renderer/views/signin/signin.html'),
                 signup: resolve(__dirname, 'src/renderer/views/signup/signup.html'),
                 dashboard: resolve(__dirname, 'src/renderer/views/dashboard/dashboard.html'),
