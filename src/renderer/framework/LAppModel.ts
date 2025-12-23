@@ -4,6 +4,21 @@ import { LAppTextureManager } from './LAppTextureManager';
 import { CubismDefaultParameterId } from './cubismdefaultparameterid';
 import { CubismFramework } from './live2dcubismframework';
 import { CubismMatrix44 } from './math/cubismmatrix44';
+import { CubismId } from './id/cubismid';
+
+// ==================== Constants ====================
+const HEAD_ANGLE_MULTIPLIER = 30;      // ParamAngleX/Y range: -30 to 30
+const BODY_ANGLE_MULTIPLIER = 10;      // ParamBodyAngleX range: -10 to 10
+const MOUSE_VELOCITY_SCALE = 10;       // Scale factor for mouse velocity
+const HAIR_DAMPING_FACTOR = 0.95;      // Damping for smooth hair motion decay
+const HAIR_SWAY_STRENGTH = 0.5;        // Strength of hair sway response
+const HAIR_SIDE_RATIO = 0.7;           // Hair side sway ratio relative to front
+const HAIR_BACK_RATIO = 0.5;           // Hair back sway ratio relative to front
+const MODEL_DEFAULT_HEIGHT = 2.0;      // Default model height scale
+
+// ==================== Utility Functions ====================
+const clamp = (value: number, min: number, max: number): number =>
+    Math.max(min, Math.min(max, value));
 
 export class LAppModel extends CubismUserModel {
     private _modelSetting: CubismModelSettingJson | null = null;
@@ -16,10 +31,50 @@ export class LAppModel extends CubismUserModel {
     private _hairSwayX: number = 0;
     private _hairSwayY: number = 0;
 
+    // Cached parameter IDs (initialized on first update)
+    private _paramIds: {
+        angleX: CubismId | null;
+        angleY: CubismId | null;
+        eyeBallX: CubismId | null;
+        eyeBallY: CubismId | null;
+        bodyAngleX: CubismId | null;
+        hairFront: CubismId | null;
+        hairSide: CubismId | null;
+        hairBack: CubismId | null;
+    } = {
+            angleX: null,
+            angleY: null,
+            eyeBallX: null,
+            eyeBallY: null,
+            bodyAngleX: null,
+            hairFront: null,
+            hairSide: null,
+            hairBack: null,
+        };
+
     constructor() {
         super();
         this._modelSetting = null;
         this._isLoaded = false;
+    }
+
+    /**
+     * Cache parameter IDs to avoid repeated lookups every frame
+     */
+    private _cacheParameterIds(): void {
+        if (this._paramIds.angleX !== null) return; // Already cached
+
+        const idManager = CubismFramework.getIdManager();
+        this._paramIds = {
+            angleX: idManager.getId(CubismDefaultParameterId.ParamAngleX),
+            angleY: idManager.getId(CubismDefaultParameterId.ParamAngleY),
+            eyeBallX: idManager.getId(CubismDefaultParameterId.ParamEyeBallX),
+            eyeBallY: idManager.getId(CubismDefaultParameterId.ParamEyeBallY),
+            bodyAngleX: idManager.getId(CubismDefaultParameterId.ParamBodyAngleX),
+            hairFront: idManager.getId(CubismDefaultParameterId.ParamHairFront),
+            hairSide: idManager.getId(CubismDefaultParameterId.ParamHairSide),
+            hairBack: idManager.getId(CubismDefaultParameterId.ParamHairBack),
+        };
     }
 
     public async loadAssets(dir: string, fileName: string, textureManager: LAppTextureManager, gl: WebGLRenderingContext): Promise<void> {
@@ -90,7 +145,7 @@ export class LAppModel extends CubismUserModel {
 
             // Adjust model's size and position - center in viewport
             // The viewport range is -1 to 1, so we need to scale appropriately
-            this._modelMatrix.setHeight(2.0);
+            this._modelMatrix.setHeight(MODEL_DEFAULT_HEIGHT);
             // Center the model (don't offset to bottom)
             this._modelMatrix.setY(0);
 
@@ -106,52 +161,43 @@ export class LAppModel extends CubismUserModel {
     public update(deltaTimeSeconds: number, mouseX: number = 0, mouseY: number = 0): void {
         if (!this._isLoaded || !this.getModel()) return;
 
+        // Cache parameter IDs on first update for better performance
+        this._cacheParameterIds();
+
         const model = this.getModel();
         model.loadParameters();
 
-        // Apply mouse tracking for head and eye movement
+        // Calculate head and eye movement based on mouse position
         // mouseX, mouseY are in range -1 to 1
+        const headAngleX = mouseX * HEAD_ANGLE_MULTIPLIER;
+        const headAngleY = mouseY * HEAD_ANGLE_MULTIPLIER;
+        const bodyAngleX = mouseX * BODY_ANGLE_MULTIPLIER;
 
-        // Head rotation (ParamAngleX: -30 to 30, ParamAngleY: -30 to 30)
-        const headAngleX = mouseX * 30; // Left-right rotation
-        const headAngleY = mouseY * 30; // Up-down rotation
-
-        // Eye ball movement (ParamEyeBallX: -1 to 1, ParamEyeBallY: -1 to 1)
-        const eyeBallX = mouseX;
-        const eyeBallY = mouseY;
-
-        // Body slight rotation (ParamBodyAngleX: -10 to 10)
-        const bodyAngleX = mouseX * 10;
-
-        // Hair sway based on mouse movement velocity
-        const mouseVelocityX = (mouseX - this._lastMouseX) * 10; // Reduced from 30
-        const mouseVelocityY = (mouseY - this._lastMouseY) * 10;
+        // Calculate hair sway based on mouse movement velocity
+        const mouseVelocityX = (mouseX - this._lastMouseX) * MOUSE_VELOCITY_SCALE;
+        const mouseVelocityY = (mouseY - this._lastMouseY) * MOUSE_VELOCITY_SCALE;
         this._lastMouseX = mouseX;
         this._lastMouseY = mouseY;
 
         // Apply velocity to hair sway with damping for smooth motion
-        const dampingFactor = 0.95; // Increased for slower decay (was 0.85)
-        const swayStrength = 0.5;   // Reduced for gentler movement (was 2.0)
-        this._hairSwayX = this._hairSwayX * dampingFactor + mouseVelocityX * swayStrength;
-        this._hairSwayY = this._hairSwayY * dampingFactor + mouseVelocityY * swayStrength;
+        this._hairSwayX = this._hairSwayX * HAIR_DAMPING_FACTOR + mouseVelocityX * HAIR_SWAY_STRENGTH;
+        this._hairSwayY = this._hairSwayY * HAIR_DAMPING_FACTOR + mouseVelocityY * HAIR_SWAY_STRENGTH;
 
         // Clamp hair sway values to valid range (-1 to 1)
-        this._hairSwayX = Math.max(-1, Math.min(1, this._hairSwayX));
-        this._hairSwayY = Math.max(-1, Math.min(1, this._hairSwayY));
+        this._hairSwayX = clamp(this._hairSwayX, -1, 1);
+        this._hairSwayY = clamp(this._hairSwayY, -1, 1);
 
-        // Set parameters using CubismId
-        const idManager = CubismFramework.getIdManager();
+        // Apply parameters using cached IDs (much faster than looking up every frame)
+        model.setParameterValueById(this._paramIds.angleX!, headAngleX);
+        model.setParameterValueById(this._paramIds.angleY!, headAngleY);
+        model.setParameterValueById(this._paramIds.eyeBallX!, mouseX);
+        model.setParameterValueById(this._paramIds.eyeBallY!, mouseY);
+        model.setParameterValueById(this._paramIds.bodyAngleX!, bodyAngleX);
 
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamAngleX), headAngleX);
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamAngleY), headAngleY);
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamEyeBallX), eyeBallX);
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamEyeBallY), eyeBallY);
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamBodyAngleX), bodyAngleX);
-
-        // Apply hair sway
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamHairFront), this._hairSwayX);
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamHairSide), this._hairSwayX * 0.7);
-        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamHairBack), this._hairSwayX * 0.5);
+        // Apply hair sway with proportional values
+        model.setParameterValueById(this._paramIds.hairFront!, this._hairSwayX);
+        model.setParameterValueById(this._paramIds.hairSide!, this._hairSwayX * HAIR_SIDE_RATIO);
+        model.setParameterValueById(this._paramIds.hairBack!, this._hairSwayX * HAIR_BACK_RATIO);
 
         // Apply pose to control which parts are visible
         if (this._pose != null) {
