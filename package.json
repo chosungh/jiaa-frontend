@@ -18,7 +18,11 @@
     "onlyBuiltDependencies": [
       "electron",
       "electron-winstaller",
-      "esbuild"
+      "esbuild",
+      "fs-xattr",
+      "macos-alias",
+      "sharp",
+      "unrs-resolver"
     ]
   },
   "devDependencies": {

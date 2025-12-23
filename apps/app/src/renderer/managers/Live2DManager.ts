@@ -129,7 +129,8 @@ export class Live2DManager {
 
         try {
             this._model = new LAppModel();
-            await this._model.loadAssets('/live2d/Hiyori/', 'Hiyori.model3.json', this._textureManager, this._gl);
+            const basePath = import.meta.env.DEV ? '/live2d/Hiyori/' : '../../live2d/Hiyori/';
+            await this._model.loadAssets(basePath, 'Hiyori.model3.json', this._textureManager, this._gl);
         } catch (e) {
             window.electronAPI.log(`loadModel error: ${e}`);
             this._model = null;
