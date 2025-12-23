@@ -30,7 +30,7 @@ export const createMainWindow = (): void => {
         mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/signin/signin.html`));
     }
 
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
 
     mainWindow.on('closed', () => {
         setMainWindow(null);
