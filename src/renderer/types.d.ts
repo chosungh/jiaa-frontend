@@ -12,6 +12,7 @@ declare global {
             saveRefreshToken: (token: string) => Promise<{ success: boolean; error?: string }>;
             getRefreshToken: () => Promise<string | null>;
             deleteRefreshToken: () => Promise<{ success: boolean }>;
+            log: (message: string) => void;
         };
     }
 }

@@ -11,6 +11,12 @@ export const registerIpcHandlers = (): void => {
         }
     });
 
+    ipcMain.on('renderer-log', (event, message: string) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        const title = win?.getTitle() || 'Renderer';
+        console.log(`[${title}] ${message}`);
+    });
+
     // IPC Event for Context Menu
     ipcMain.on('show-context-menu', (event: IpcMainEvent) => {
         const template = [

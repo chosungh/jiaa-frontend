@@ -194,33 +194,13 @@ html {
 }
 
 /* Live2D Canvas Positioning */
+/* Live2D Canvas Positioning */
 #live2d {
   position: absolute;
   top: 0;
   right: 0;
   width: 100%;
-  /* Cover full screen but pointer-events will need management */
   height: 100%;
-  z-index: 5;
-  /* Below UI but visible */
-  pointer-events: auto;
-  /* Allow interaction with the model */
-}
-
-/* App Container allows clicks to pass through empty spaces to the canvas */
-.app-container {
-  pointer-events: none;
-}
-
-.sidebar,
-.main-content {
-  /* Re-enable clicks on UI elements */
-  pointer-events: auto;
-}
-
-#live2d {
   z-index: 1;
-  /* Lowest level */
   pointer-events: auto;
-  /* Allow dragging the model */
 }

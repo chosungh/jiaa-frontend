@@ -26,6 +26,10 @@ export const createAvatarWindow = (): BrowserWindow => {
         },
     });
 
+    // Enable click-through while still receiving mouse events
+    // forward: true allows the renderer to still track mouse position
+    avatarWindow.setIgnoreMouseEvents(true, { forward: true });
+
     // and load the index.html of the app.
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
         avatarWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/avatar/index.html`);

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Application, Ticker } from 'pixi.js';
-import { Live2DSprite } from 'easy-live2d';
 import { useAppDispatch } from '../../store/hooks';
+import { Live2DManager } from '../../managers/Live2DManager';
 import { signout } from '../../store/slices/authSlice';
 import { useQuery } from '@tanstack/react-query';
 import { fetchContributionData } from '../../services/api';
@@ -48,55 +47,34 @@ const Dashboard: React.FC = () => {
     // Live2D Init
     useEffect(() => {
         if (!canvasRef.current) return;
-        const canvas = canvasRef.current;
-
-        let app: Application | null = null;
 
         const init = async () => {
-            app = new Application();
-            await app.init({
-                canvas: canvas,
-                backgroundAlpha: 0,
-                resizeTo: canvas.parentElement as HTMLElement,
-            });
-
-            const live2dSprite = new Live2DSprite();
-            try {
-                await live2dSprite.init({
-                    modelPath: '/live2d/Hiyori/Hiyori.model3.json',
-                    ticker: Ticker.shared
-                });
-
-                // Adjust scale and position
-                const scale = (app.screen.height / live2dSprite.height) * 2;
-                live2dSprite.scale.set(scale);
-
-                live2dSprite.x = (app.screen.width - live2dSprite.width) / 2.3;
-
-                app.stage.addChild(live2dSprite);
-                console.log('Dashboard Avatar initialized');
-            } catch (e) {
-                console.error('Dashboard Avatar Load Failed:', e);
-            }
+            if (!canvasRef.current) return;
+            const manager = Live2DManager.getInstance();
+            manager.initialize(canvasRef.current);
         };
 
         init();
 
         return () => {
-            // Cleanup
-            if (app && app.renderer) {
-                try {
-                    // Check if destroy works with options, otherwise call without
-                    app.destroy(true, { children: true, texture: true });
-                } catch (e) {
-                    console.warn('Dashboard app destroy failed', e);
-                }
-            }
+            Live2DManager.releaseInstance();
         };
     }, []);
 
     const handleClose = () => {
         window.electronAPI?.closeDashboard();
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const manager = Live2DManager.getInstance();
+        manager.onMouseMove(x, y);
     };
 
     return (
@@ -215,7 +193,7 @@ const Dashboard: React.FC = () => {
 
                 {/* Avatar Canvas */}
                 <div className="avatar-container">
-                    <canvas ref={canvasRef} id="live2d-dashboard"></canvas>
+                    <canvas ref={canvasRef} id="live2d-dashboard" onMouseMove={handleMouseMove}></canvas>
                 </div>
             </div>
         </>

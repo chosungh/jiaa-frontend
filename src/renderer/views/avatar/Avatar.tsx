@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Application, Ticker } from 'pixi.js';
-import { Live2DSprite } from 'easy-live2d';
+import { Live2DManager } from '../../managers/Live2DManager';
 
 import './avatar.css';
 
@@ -11,63 +10,49 @@ const Avatar: React.FC = () => {
         if (!canvasRef.current) return;
 
         const init = async () => {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-
-            // 1. PixiJS Application init
-            const app = new Application();
-            await app.init({
-                canvas: canvas,
-                backgroundAlpha: 0,
-                resizeTo: window,
-            });
-
-            // 2. Live2D Sprite
-            const live2dSprite = new Live2DSprite();
-
-            // 3. Model Init
-            try {
-                await live2dSprite.init({
-                    modelPath: '/live2d/Hiyori/Hiyori.model3.json',
-                    ticker: Ticker.shared,
-                });
-
-                // 4. Scale & Position
-                const scale = Math.max(app.screen.width / live2dSprite.width, app.screen.height / live2dSprite.height) * 5;
-                live2dSprite.scale.set(scale);
-
-                live2dSprite.x = (app.screen.width - live2dSprite.width) / 4;
-                live2dSprite.y = (app.screen.height - live2dSprite.height) * 0.75;
-
-                // 5. Add to stage
-                app.stage.addChild(live2dSprite);
-
-                // Events
-                live2dSprite.eventMode = 'static';
-                // Click event removed as per user request
-                // live2dSprite.on('pointertap', () => {
-                //     window.electronAPI?.openSignin();
-                // });
-
-                const handleContextMenu = (e: MouseEvent) => {
-                    e.preventDefault();
-                    window.electronAPI?.showContextMenu();
-                };
-
-                window.addEventListener('contextmenu', handleContextMenu);
-
-                return () => {
-                    // Cleanup if needed
-                    app.destroy(true, { children: true, texture: true });
-                    window.removeEventListener('contextmenu', handleContextMenu);
-                };
-
-            } catch (error) {
-                console.error('Live2D Model Load Failed:', error);
-            }
+            if (!canvasRef.current) return;
+            const manager = Live2DManager.getInstance();
+            manager.initialize(canvasRef.current);
         };
 
         init();
+
+        const handleResize = () => {
+            const manager = Live2DManager.getInstance();
+            manager.resizeCanvas();
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+            window.electronAPI?.showContextMenu();
+        };
+
+        window.addEventListener('contextmenu', handleContextMenu);
+
+        // Use document-level mouse tracking for click-through windows
+        // setIgnoreMouseEvents(true, { forward: true }) forwards mouse events at document level
+        const handleMouseMove = (e: MouseEvent) => {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const manager = Live2DManager.getInstance();
+            manager.onMouseMove(x, y);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            Live2DManager.releaseInstance();
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('contextmenu', handleContextMenu);
+            document.removeEventListener('mousemove', handleMouseMove);
+        };
     }, []);
 
     return (
