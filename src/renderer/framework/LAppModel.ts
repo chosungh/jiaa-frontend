@@ -10,6 +10,12 @@ export class LAppModel extends CubismUserModel {
     private _modelHomeDir: string = '';
     private _isLoaded: boolean = false;
 
+    // Hair movement tracking
+    private _lastMouseX: number = 0;
+    private _lastMouseY: number = 0;
+    private _hairSwayX: number = 0;
+    private _hairSwayY: number = 0;
+
     constructor() {
         super();
         this._modelSetting = null;
@@ -117,6 +123,22 @@ export class LAppModel extends CubismUserModel {
         // Body slight rotation (ParamBodyAngleX: -10 to 10)
         const bodyAngleX = mouseX * 10;
 
+        // Hair sway based on mouse movement velocity
+        const mouseVelocityX = (mouseX - this._lastMouseX) * 10; // Reduced from 30
+        const mouseVelocityY = (mouseY - this._lastMouseY) * 10;
+        this._lastMouseX = mouseX;
+        this._lastMouseY = mouseY;
+
+        // Apply velocity to hair sway with damping for smooth motion
+        const dampingFactor = 0.95; // Increased for slower decay (was 0.85)
+        const swayStrength = 0.5;   // Reduced for gentler movement (was 2.0)
+        this._hairSwayX = this._hairSwayX * dampingFactor + mouseVelocityX * swayStrength;
+        this._hairSwayY = this._hairSwayY * dampingFactor + mouseVelocityY * swayStrength;
+
+        // Clamp hair sway values to valid range (-1 to 1)
+        this._hairSwayX = Math.max(-1, Math.min(1, this._hairSwayX));
+        this._hairSwayY = Math.max(-1, Math.min(1, this._hairSwayY));
+
         // Set parameters using CubismId
         const idManager = CubismFramework.getIdManager();
 
@@ -125,6 +147,11 @@ export class LAppModel extends CubismUserModel {
         model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamEyeBallX), eyeBallX);
         model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamEyeBallY), eyeBallY);
         model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamBodyAngleX), bodyAngleX);
+
+        // Apply hair sway
+        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamHairFront), this._hairSwayX);
+        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamHairSide), this._hairSwayX * 0.7);
+        model.setParameterValueById(idManager.getId(CubismDefaultParameterId.ParamHairBack), this._hairSwayX * 0.5);
 
         // Apply pose to control which parts are visible
         if (this._pose != null) {
@@ -146,5 +173,15 @@ export class LAppModel extends CubismUserModel {
 
         this.getRenderer().setMvpMatrix(matrix);
         this.getRenderer().drawModel();
+    }
+
+    /**
+     * Set the model's scale and Y position
+     * @param scale Model height scale (2.0 = full body, 4.0 = upper body zoom)
+     * @param offsetY Y offset (-0.5 = shift down to show upper body)
+     */
+    public setModelTransform(scale: number, offsetY: number): void {
+        this._modelMatrix.setHeight(scale);
+        this._modelMatrix.setY(offsetY);
     }
 }

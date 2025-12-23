@@ -136,6 +136,17 @@ export class Live2DManager {
         }
     }
 
+    /**
+     * Set the model's scale and Y position
+     * @param scale Model height scale (2.0 = full body, 4.0 = upper body zoom)
+     * @param offsetY Y offset (-0.5 = shift down to show upper body)
+     */
+    public setModelTransform(scale: number, offsetY: number): void {
+        if (this._model) {
+            this._model.setModelTransform(scale, offsetY);
+        }
+    }
+
     public run(): void {
         this._lastFrameTime = performance.now();
 

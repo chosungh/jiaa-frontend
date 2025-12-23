@@ -13,6 +13,12 @@ const Avatar: React.FC = () => {
             if (!canvasRef.current) return;
             const manager = Live2DManager.getInstance();
             manager.initialize(canvasRef.current);
+
+            // Wait for model to load, then set upper body view
+            // Scale 4.0 = zoom in, offsetY -1.2 = shift down to show upper body
+            setTimeout(() => {
+                manager.setModelTransform(4.0, -1.2);
+            }, 500);
         };
 
         init();
