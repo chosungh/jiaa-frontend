@@ -14,29 +14,8 @@
 </head>
 
 <body>
-    <div class="signup-container">
-        <h1>회원가입</h1>
-        <form id="signup-form" novalidate>
-            <div class="input-group">
-                <input type="email" id="email" required autocomplete="off" placeholder=" ">
-                <label for="email">이메일</label>
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" required placeholder=" ">
-                <label for="password">비밀번호</label>
-            </div>
-            <div class="input-group">
-                <input type="password" id="confirm-password" required placeholder=" ">
-                <label for="confirm-password">비밀번호 확인</label>
-            </div>
-            <button type="submit" class="signup-btn">회원가입</button>
-        </form>
-        <div class="footer">
-            <a id="back-to-login">이미 회원이신가요?</a>
-        </div>
-    </div>
-
-    <script type="module" src="./signup.js"></script>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
 </body>
 
 </html>

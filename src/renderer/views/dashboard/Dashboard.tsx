@@ -1,0 +1,219 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Application, Ticker } from 'pixi.js';
+import { Live2DSprite } from 'easy-live2d';
+import './dashboard.css';
+
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const Dashboard: React.FC = () => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [contributionLevels, setContributionLevels] = useState<number[][]>([]);
+
+    // Generate Contribution Data
+    useEffect(() => {
+        const data: number[][] = [];
+        const totalWeeks = 53;
+        for (let i = 0; i < totalWeeks; i++) {
+            const week: number[] = [];
+            for (let j = 0; j < 7; j++) {
+                const rand = Math.random();
+                let level = 0;
+                if (rand > 0.85) level = 1;
+                else if (rand > 0.92) level = 2;
+                else if (rand > 0.96) level = 3;
+                else if (rand > 0.99) level = 4;
+                week.push(level);
+            }
+            data.push(week);
+        }
+        setContributionLevels(data);
+    }, []);
+
+    // Live2D Init
+    useEffect(() => {
+        if (!canvasRef.current) return;
+        const canvas = canvasRef.current;
+
+        let app: Application | null = null;
+
+        const init = async () => {
+            app = new Application();
+            await app.init({
+                canvas: canvas,
+                backgroundAlpha: 0,
+                resizeTo: canvas.parentElement as HTMLElement,
+            });
+
+            const live2dSprite = new Live2DSprite();
+            try {
+                await live2dSprite.init({
+                    modelPath: '/live2d/Hiyori/Hiyori.model3.json',
+                    ticker: Ticker.shared
+                });
+
+                // Adjust scale and position
+                const scale = (app.screen.height / live2dSprite.height) * 2;
+                live2dSprite.scale.set(scale);
+
+                live2dSprite.x = (app.screen.width - live2dSprite.width) / 2.3;
+
+                app.stage.addChild(live2dSprite);
+                console.log('Dashboard Avatar initialized');
+            } catch (e) {
+                console.error('Dashboard Avatar Load Failed:', e);
+            }
+        };
+
+        init();
+
+        return () => {
+            // Cleanup
+            if (app && app.renderer) {
+                try {
+                    // Check if destroy works with options, otherwise call without
+                    app.destroy(true, { children: true, texture: true });
+                } catch (e) {
+                    console.warn('Dashboard app destroy failed', e);
+                }
+            }
+        };
+    }, []);
+
+    const handleClose = () => {
+        window.electronAPI?.closeDashboard();
+    };
+
+    return (
+        <>
+            <button className="close-btn" id="close-btn" onClick={handleClose}>&times;</button>
+            <div className="dashboard-wrapper">
+                {/* Sidebar */}
+                <nav className="sidebar">
+                    <div className="nav-item profile">
+                        <div className="profile-circle"></div>
+                    </div>
+                    <div className="nav-group">
+                        <div className="nav-item active">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                            </svg>
+                        </div>
+                        <div className="nav-item">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                            </svg>
+                        </div>
+                        <div className="nav-item">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                <path d="M16 6V4c0-2.21-1.79-4-4-4S8 1.79 8 4v2H5v14c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V6h-3zm-6-2c0-1.1.9-2 2-2s2 .9 2 2v2h-4V4zm9 14H5V8h14v10z" />
+                            </svg>
+                        </div>
+                    </div>
+                </nav>
+
+                <div className="dashboard-container">
+                    <header className="header">
+                        <h1>홈</h1>
+                    </header>
+
+                    <div className="dashboard-grid">
+                        {/* Radar Chart Panel */}
+                        <div className="card radar-card">
+                            <div className="card-header">
+                                <span>대시보드</span>
+                                <span className="more">자세히 보기</span>
+                            </div>
+                            <div className="card-body">
+                                <svg viewBox="0 0 200 200" className="radar-chart">
+                                    <polygon points="100,20 170,60 170,140 100,180 30,140 30,60" className="radar-bg" />
+                                    <polygon points="100,40 150,70 150,130 100,160 50,130 50,70" className="radar-grid" />
+                                    <polygon points="100,60 130,80 130,120 100,140 70,120 70,80" className="radar-grid" />
+                                    <polygon points="100,30 160,65 140,130 100,170 40,130 50,50" className="radar-data" />
+                                    <text x="100" y="15" textAnchor="middle" className="radar-label">코딩</text>
+                                    <text x="180" y="60" textAnchor="start" className="radar-label">운동</text>
+                                    <text x="180" y="150" textAnchor="start" className="radar-label">수학</text>
+                                    <text x="100" y="195" textAnchor="middle" className="radar-label">관리</text>
+                                    <text x="20" y="150" textAnchor="end" className="radar-label">분석</text>
+                                    <text x="20" y="60" textAnchor="end" className="radar-label">테스팅</text>
+                                </svg>
+                            </div>
+                        </div>
+
+                        {/* Roadmap Panel */}
+                        <div className="card roadmap-card">
+                            <div className="card-header">
+                                <span>로드맵</span>
+                                <span className="more">자세히 보기</span>
+                            </div>
+                            <div className="card-body">
+                                <ul className="roadmap-list">
+                                    <li className="roadmap-item completed">
+                                        <span className="status-icon">✓</span>
+                                        <span>기초 다지기</span>
+                                    </li>
+                                    <li className="roadmap-item active">
+                                        <span className="status-icon">▶</span>
+                                        <span>심화 학습</span>
+                                    </li>
+                                    <li className="roadmap-item">
+                                        <span className="status-icon">○</span>
+                                        <span>실전 프로젝트</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Bottom Stats Panel */}
+                        <div className="card bottom-card">
+                            <div className="card-header">
+                                <span>활동기록</span>
+                                <span className="more">자세히 보기</span>
+                            </div>
+                            <div className="card-body flex-row">
+                                <div className="stat-box">
+                                    <div className="stat-value">10/8</div>
+                                    <div className="progress-bar">
+                                        <div className="progress-fill" style={{ width: '70%' }}></div>
+                                    </div>
+                                    <div className="progress-bar secondary">
+                                        <div className="progress-fill" style={{ width: '40%' }}></div>
+                                    </div>
+                                </div>
+                                <div className="contribution-container">
+                                    <div className="months-label">
+                                        {months.map((m, i) => (
+                                            <span key={i}>{m}</span>
+                                        ))}
+                                    </div>
+                                    <div className="graph-area">
+                                        <ul className="days-label">
+                                            <li>Mon</li>
+                                            <li>Wed</li>
+                                            <li>Fri</li>
+                                        </ul>
+                                        <div className="contribution-grid">
+                                            {contributionLevels.map((week, i) => (
+                                                <div key={i} className="grid-week">
+                                                    {week.map((level, j) => (
+                                                        <div key={j} className={`grid-cell level-${level}`}></div>
+                                                    ))}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Avatar Canvas */}
+                <div className="avatar-container">
+                    <canvas ref={canvasRef} id="live2d-dashboard"></canvas>
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default Dashboard;
