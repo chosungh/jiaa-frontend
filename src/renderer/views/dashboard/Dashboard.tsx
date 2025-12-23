@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Application, Ticker } from 'pixi.js';
 import { Live2DSprite } from 'easy-live2d';
+import { useAuth } from '../../lib/AuthContext';
 import './dashboard.css';
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -8,6 +9,31 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const Dashboard: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [contributionLevels, setContributionLevels] = useState<number[][]>([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const { signout } = useAuth();
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    const handleSignout = async () => {
+        await signout();
+    };
 
     // Generate Contribution Data
     useEffect(() => {
@@ -89,8 +115,14 @@ const Dashboard: React.FC = () => {
             <div className="dashboard-wrapper">
                 {/* Sidebar */}
                 <nav className="sidebar">
-                    <div className="nav-item profile">
+                    <div className="nav-item profile" onClick={toggleDropdown} ref={dropdownRef}>
                         <div className="profile-circle"></div>
+                        {isDropdownOpen && (
+                            <div className="dropdown-menu">
+                                <div className="dropdown-item">내 프로필</div>
+                                <div className="dropdown-item" onClick={handleSignout}>로그아웃</div>
+                            </div>
+                        )}
                     </div>
                     <div className="nav-group">
                         <div className="nav-item active">
