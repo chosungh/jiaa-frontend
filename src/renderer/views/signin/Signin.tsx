@@ -1,25 +1,35 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../lib/AuthContext';
+import { useMutation } from '@tanstack/react-query';
+import { useAppDispatch } from '../../store/hooks';
+import { setCredentials } from '../../store/slices/authSlice';
+import { signin } from '../../services/api';
 import './signin.css';
 
 const Signin: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { signin } = useAuth();
+    const dispatch = useAppDispatch();
+
+    const signinMutation = useMutation({
+        mutationFn: signin,
+        onSuccess: async (data) => {
+            dispatch(setCredentials({ accessToken: data.accessToken, email: data.email }));
+            // Save refresh token to safeStorage via IPC
+            await window.electronAPI.saveRefreshToken(data.refreshToken);
+            // Notify Main process to switch views
+            window.electronAPI.signinSuccess(data.email);
+        },
+        onError: (error) => {
+            console.error('Signin failed:', error);
+            alert('Login failed. Please try again.');
+        }
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (email && password) {
             console.log('Signin attempt:', { email, password: '***' });
-
-            // Simulating API response
-            const mockApiResponse = {
-                accessToken: 'mock-access-token-' + Date.now(),
-                refreshToken: 'mock-refresh-token-' + Date.now(),
-                email: email
-            };
-
-            await signin(mockApiResponse);
+            signinMutation.mutate({ email, password });
         } else {
             alert('Please fill in all fields');
         }

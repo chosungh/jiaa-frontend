@@ -1,17 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Application, Ticker } from 'pixi.js';
 import { Live2DSprite } from 'easy-live2d';
-import { useAuth } from '../../lib/AuthContext';
+import { useAppDispatch } from '../../store/hooks';
+import { signout } from '../../store/slices/authSlice';
+import { useQuery } from '@tanstack/react-query';
+import { fetchContributionData } from '../../services/api';
 import './dashboard.css';
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const Dashboard: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [contributionLevels, setContributionLevels] = useState<number[][]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const { signout } = useAuth();
+    const dispatch = useAppDispatch();
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Fetch Contribution Data
+    const { data: contributionLevels = [] } = useQuery({
+        queryKey: ['contributionData'],
+        queryFn: fetchContributionData
+    });
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -32,28 +40,10 @@ const Dashboard: React.FC = () => {
     };
 
     const handleSignout = async () => {
-        await signout();
+        dispatch(signout());
+        await window.electronAPI.deleteRefreshToken();
+        window.electronAPI.closeDashboard();
     };
-
-    // Generate Contribution Data
-    useEffect(() => {
-        const data: number[][] = [];
-        const totalWeeks = 53;
-        for (let i = 0; i < totalWeeks; i++) {
-            const week: number[] = [];
-            for (let j = 0; j < 7; j++) {
-                const rand = Math.random();
-                let level = 0;
-                if (rand > 0.85) level = 1;
-                else if (rand > 0.92) level = 2;
-                else if (rand > 0.96) level = 3;
-                else if (rand > 0.99) level = 4;
-                week.push(level);
-            }
-            data.push(week);
-        }
-        setContributionLevels(data);
-    }, []);
 
     // Live2D Init
     useEffect(() => {

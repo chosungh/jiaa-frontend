@@ -42,10 +42,13 @@
     "vite": "^7.3.0"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
+    "@tanstack/react-query": "^5.90.12",
     "easy-live2d": "0.4.0-1",
     "electron-squirrel-startup": "^1.0.1",
     "pixi.js": "^8.14.3",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "react-redux": "^9.2.0"
   }
 }
