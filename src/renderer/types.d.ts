@@ -13,6 +13,11 @@ declare global {
             getRefreshToken: () => Promise<string | null>;
             deleteRefreshToken: () => Promise<{ success: boolean }>;
             log: (message: string) => void;
+
+            // Avatar movement sync
+            syncAvatarMovement: (mouseX: number, mouseY: number) => void;
+            onAvatarMovementUpdate: (callback: (mouseX: number, mouseY: number) => void) => () => void;
         };
     }
 }
+

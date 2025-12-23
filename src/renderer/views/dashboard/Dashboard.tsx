@@ -52,11 +52,16 @@ const Dashboard: React.FC = () => {
             if (!canvasRef.current) return;
             const manager = Live2DManager.getInstance();
             manager.initialize(canvasRef.current);
+
+            // Enable sync with other windows (Avatar)
+            manager.enableSync();
         };
 
         init();
 
         return () => {
+            const manager = Live2DManager.getInstance();
+            manager.disableSync();
             Live2DManager.releaseInstance();
         };
     }, []);

@@ -93,6 +93,23 @@ export const registerIpcHandlers = (): void => {
         }
     });
 
+    // IPC Event for Avatar Movement Sync
+    // Broadcasts mouse position from one window to all other windows
+    ipcMain.on('sync-avatar-movement', (event: IpcMainEvent, mouseX: number, mouseY: number) => {
+        const senderWindow = BrowserWindow.fromWebContents(event.sender);
+        const mainWindow = getMainWindow();
+        const avatarWindow = getAvatarWindow();
+
+        // Send to main window if sender is avatar window
+        if (senderWindow === avatarWindow && mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('avatar-movement-update', mouseX, mouseY);
+        }
+        // Send to avatar window if sender is main window
+        else if (senderWindow === mainWindow && avatarWindow && !avatarWindow.isDestroyed()) {
+            avatarWindow.webContents.send('avatar-movement-update', mouseX, mouseY);
+        }
+    });
+
     handleTokenStorage();
 };
 

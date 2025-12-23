@@ -15,6 +15,9 @@ const Avatar: React.FC = () => {
             const manager = Live2DManager.getInstance();
             manager.initialize(canvasRef.current);
 
+            // Enable sync with other windows (Dashboard)
+            manager.enableSync();
+
             // Wait for model to load, then set upper body view
             // Scale 4.0 = zoom in, offsetY -1.2 = shift down to show upper body
             setTimeout(() => {
@@ -55,6 +58,8 @@ const Avatar: React.FC = () => {
         document.addEventListener('mousemove', handleMouseMove);
 
         return () => {
+            const manager = Live2DManager.getInstance();
+            manager.disableSync();
             Live2DManager.releaseInstance();
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('contextmenu', handleContextMenu);

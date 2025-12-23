@@ -12,4 +12,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getRefreshToken: () => ipcRenderer.invoke('get-refresh-token'),
     deleteRefreshToken: () => ipcRenderer.invoke('delete-refresh-token'),
     log: (message: string) => ipcRenderer.send('renderer-log', message),
+
+    // Avatar movement sync
+    syncAvatarMovement: (mouseX: number, mouseY: number) => ipcRenderer.send('sync-avatar-movement', mouseX, mouseY),
+    onAvatarMovementUpdate: (callback: (mouseX: number, mouseY: number) => void) => {
+        const handler = (_event: Electron.IpcRendererEvent, mouseX: number, mouseY: number) => callback(mouseX, mouseY);
+        ipcRenderer.on('avatar-movement-update', handler);
+        // Return cleanup function
+        return () => ipcRenderer.removeListener('avatar-movement-update', handler);
+    },
 });
+

@@ -28,6 +28,8 @@ export class Live2DManager {
     // Mouse interaction
     private _mouseX: number = 0;
     private _mouseY: number = 0;
+    private _syncEnabled: boolean = false;
+    private _cleanupSync: (() => void) | null = null;
 
     public static getInstance(): Live2DManager {
         if (this._instance === null) {
@@ -218,8 +220,9 @@ export class Live2DManager {
      * Handle mouse move event - converts screen coords to model space
      * @param x Mouse X position relative to canvas
      * @param y Mouse Y position relative to canvas
+     * @param broadcast Whether to broadcast this movement to other windows (default: true)
      */
-    public onMouseMove(x: number, y: number): void {
+    public onMouseMove(x: number, y: number, broadcast: boolean = true): void {
         if (!this._canvas) return;
 
         // Convert to normalized coordinates (-1 to 1)
@@ -227,6 +230,49 @@ export class Live2DManager {
         // Y: top=1, bottom=-1 (inverted because screen Y is top-to-bottom)
         this._mouseX = (x / this._canvas.clientWidth) * 2 - 1;
         this._mouseY = -((y / this._canvas.clientHeight) * 2 - 1);
+
+        // Broadcast to other windows if sync is enabled
+        if (broadcast && this._syncEnabled && window.electronAPI?.syncAvatarMovement) {
+            window.electronAPI.syncAvatarMovement(this._mouseX, this._mouseY);
+        }
+    }
+
+    /**
+     * Set mouse position directly in model space (used for sync from other windows)
+     * @param mouseX X position in model space (-1 to 1)
+     * @param mouseY Y position in model space (-1 to 1)
+     */
+    public setMousePosition(mouseX: number, mouseY: number): void {
+        this._mouseX = mouseX;
+        this._mouseY = mouseY;
+    }
+
+    /**
+     * Enable sync between windows
+     * When enabled, mouse movements will be broadcast to other windows
+     * and this instance will listen for movements from other windows
+     */
+    public enableSync(): void {
+        if (this._syncEnabled) return;
+        this._syncEnabled = true;
+
+        // Listen for movement updates from other windows
+        if (window.electronAPI?.onAvatarMovementUpdate) {
+            this._cleanupSync = window.electronAPI.onAvatarMovementUpdate((mouseX, mouseY) => {
+                this.setMousePosition(mouseX, mouseY);
+            });
+        }
+    }
+
+    /**
+     * Disable sync between windows
+     */
+    public disableSync(): void {
+        this._syncEnabled = false;
+        if (this._cleanupSync) {
+            this._cleanupSync();
+            this._cleanupSync = null;
+        }
     }
 
     /**
@@ -253,6 +299,7 @@ export class Live2DManager {
 
     public release(): void {
         cancelAnimationFrame(this._requestId);
+        this.disableSync();
         this.cleanupModel();
 
         if (this._textureManager) {
