@@ -86,4 +86,64 @@ export const registerIpcHandlers = (): void => {
             avatarWindow.show();
         }
     });
+
+    handleTokenStorage();
+};
+
+import { safeStorage } from 'electron';
+import fs from 'fs/promises';
+import path from 'path';
+
+const handleTokenStorage = () => {
+    const getTokenPath = () => path.join(app.getPath('userData'), 'secure_token.enc');
+
+    ipcMain.handle('save-refresh-token', async (_, token: string) => {
+        try {
+            if (safeStorage.isEncryptionAvailable()) {
+                const encryptedBuffer = safeStorage.encryptString(token);
+                await fs.writeFile(getTokenPath(), encryptedBuffer);
+                return { success: true };
+            } else {
+                console.warn('[Main] safeStorage not available. Token NOT saved.');
+                return { success: false, error: 'Encryption not available' };
+            }
+        } catch (error: any) {
+            console.error('[Main] Failed to save token:', error);
+            return { success: false, error: error.message };
+        }
+    });
+
+    ipcMain.handle('get-refresh-token', async () => {
+        try {
+            const tokenPath = getTokenPath();
+            // Check if file exists
+            try {
+                await fs.access(tokenPath);
+            } catch {
+                return null; // File doesn't exist
+            }
+
+            const encryptedBuffer = await fs.readFile(tokenPath);
+            if (safeStorage.isEncryptionAvailable()) {
+                const decryptedString = safeStorage.decryptString(encryptedBuffer);
+                return decryptedString;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error('[Main] Failed to get token:', error);
+            return null;
+        }
+    });
+
+    ipcMain.handle('delete-refresh-token', async () => {
+        try {
+            const tokenPath = getTokenPath();
+            await fs.unlink(tokenPath);
+            return { success: true };
+        } catch (error) {
+            // Ignore error if file doesn't exist
+            return { success: false };
+        }
+    });
 };

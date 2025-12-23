@@ -8,4 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     closeSignin: () => ipcRenderer.send('close-signin'),
     closeDashboard: () => ipcRenderer.send('close-dashboard'),
     signinSuccess: (email: string) => ipcRenderer.send('signin-success', email),
+    saveRefreshToken: (token: string) => ipcRenderer.invoke('save-refresh-token', token),
+    getRefreshToken: () => ipcRenderer.invoke('get-refresh-token'),
+    deleteRefreshToken: () => ipcRenderer.invoke('delete-refresh-token'),
 });

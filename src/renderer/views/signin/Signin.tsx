@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../lib/AuthContext';
 import './signin.css';
 
 const Signin: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { signin } = useAuth();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (email && password) {
             console.log('Signin attempt:', { email, password: '***' });
-            window.electronAPI?.signinSuccess(email);
+
+            // Simulating API response
+            const mockApiResponse = {
+                accessToken: 'mock-access-token-' + Date.now(),
+                refreshToken: 'mock-refresh-token-' + Date.now(),
+                email: email
+            };
+
+            await signin(mockApiResponse);
         } else {
             alert('Please fill in all fields');
         }
