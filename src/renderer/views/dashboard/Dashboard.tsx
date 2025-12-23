@@ -17,8 +17,8 @@ const Dashboard: React.FC = () => {
 
     // Fetch Contribution Data
     const { data: contributionLevels = [] } = useQuery({
-        queryKey: ['contributionData'],
-        queryFn: fetchContributionData
+        queryKey: ['contributionData', selectedYear],
+        queryFn: () => fetchContributionData(selectedYear)
     });
 
     // Close dropdown when clicking outside
