@@ -9,7 +9,19 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        name: 'Jiaa',
+        setupExe: 'Jiaa-Setup.exe',
+      },
+      platforms: ['win32'],
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        name: 'Jiaa',
+        format: 'ULFO',
+      },
+      platforms: ['darwin'],
     },
     {
       name: '@electron-forge/maker-zip',
@@ -60,7 +72,7 @@ module.exports = {
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true,
+      [FuseV1Options.OnlyLoadAppFromAsar]: false,
     }),
   ],
 };

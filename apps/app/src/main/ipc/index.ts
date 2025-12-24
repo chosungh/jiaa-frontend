@@ -1,6 +1,8 @@
 import { ipcMain, BrowserWindow, Menu, app, IpcMainEvent } from 'electron';
 import { getMainWindow, getAvatarWindow } from '../windows/manager';
 import { createMainWindow, loadSigninPage, loadSignupPage, loadDashboardPage } from '../windows/mainWindow';
+import { checkModelExists, downloadAndExtractModel, getModelDirectory } from '../services/modelManager';
+import { MODEL_NAME } from '../../common/constants';
 
 export const registerIpcHandlers = (): void => {
     // IPC Event for Click-through
@@ -108,6 +110,25 @@ export const registerIpcHandlers = (): void => {
         else if (senderWindow === mainWindow && avatarWindow && !avatarWindow.isDestroyed()) {
             avatarWindow.webContents.send('avatar-movement-update', mouseX, mouseY);
         }
+    });
+
+    ipcMain.handle('check-model-exists', async () => {
+        return checkModelExists();
+    });
+
+    ipcMain.handle('download-model', async (event) => {
+        const win = BrowserWindow.fromWebContents(event.sender);
+        return await downloadAndExtractModel((progress) => {
+            if (win && !win.isDestroyed()) {
+                win.webContents.send('model-download-progress', progress);
+            }
+        });
+    });
+
+    ipcMain.handle('get-model-base-path', async () => {
+        // Return local-model protocol URL for the model directory
+        // Use a dummy host 'local-file' to avoid Punycode issues with non-ASCII model names
+        return `local-model://local-file/${MODEL_NAME}/`;
     });
 
     handleTokenStorage();

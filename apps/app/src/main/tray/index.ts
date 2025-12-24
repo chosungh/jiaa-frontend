@@ -5,9 +5,20 @@ import { createMainWindow } from '../windows/mainWindow';
 
 let tray: Tray | null = null;
 
+declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
+declare const MAIN_WINDOW_VITE_NAME: string;
+
 export const createTray = (): void => {
     // Tray Icon 생성
-    const iconPath = path.join(__dirname, '../../public/tray-icon.png');
+    let iconPath: string;
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        // Development
+        iconPath = path.join(app.getAppPath(), 'public/tray-icon.png');
+    } else {
+        // Production
+        iconPath = path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/tray-icon.png`);
+    }
+
     const icon = nativeImage.createFromPath(iconPath);
     tray = new Tray(icon.resize({ width: 16, height: 16 }));
 
