@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow, Menu, app, IpcMainEvent } from 'electron';
 import { getMainWindow, getAvatarWindow } from '../windows/manager';
 import { createMainWindow, loadSigninPage, loadSignupPage, loadDashboardPage } from '../windows/mainWindow';
 import { checkModelExists, downloadAndExtractModel, getModelDirectory } from '../services/modelManager';
+import { MODEL_NAME } from '../../common/constants';
 
 export const registerIpcHandlers = (): void => {
     // IPC Event for Click-through
@@ -126,7 +127,8 @@ export const registerIpcHandlers = (): void => {
 
     ipcMain.handle('get-model-base-path', async () => {
         // Return local-model protocol URL for the model directory
-        return `local-model://Hiyori/`;
+        // Use a dummy host 'local-file' to avoid Punycode issues with non-ASCII model names
+        return `local-model://local-file/${MODEL_NAME}/`;
     });
 
     handleTokenStorage();

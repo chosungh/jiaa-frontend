@@ -3,6 +3,7 @@ import { LAppAllocator } from '../framework/LAppAllocator';
 import { LAppModel } from '../framework/LAppModel';
 import { LAppTextureManager } from '../framework/LAppTextureManager';
 import { CubismMatrix44 } from '../framework/math/cubismmatrix44';
+import { MODEL_NAME } from '../../common/constants';
 
 export class Live2DManager {
     private static _instance: Live2DManager | null = null;
@@ -125,13 +126,30 @@ export class Live2DManager {
 
         // Set loading flag immediately (synchronously)
         this._isModelLoading = true;
-        window.electronAPI.log('loadModel: Starting model load');
+        window.electronAPI.log(`loadModel: Starting model load for ${MODEL_NAME}`);
 
         try {
-            this._model = new LAppModel();
             const basePath = await window.electronAPI.getModelBasePath();
             window.electronAPI.log(`loadModel: Using base path: ${basePath}`);
-            await this._model.loadAssets(basePath, 'Hiyori.model3.json', this._textureManager, this._gl);
+
+            // Guard against the instance being released during the await
+            if (!Live2DManager._isInitialized || !this._gl || !this._textureManager) {
+                window.electronAPI.log('loadModel: Manager was released during await, aborting');
+                return;
+            }
+
+            this._model = new LAppModel();
+
+            // Note: ${MODEL_NAME}.model3.json must match exactly what's on disk
+            await this._model.loadAssets(basePath, `${MODEL_NAME}.model3.json`, this._textureManager, this._gl);
+
+            // Final check if we were released during the long loadAssets call
+            if (!this._model) {
+                window.electronAPI.log('loadModel: Model was released during loadAssets, aborting');
+                return;
+            }
+
+            window.electronAPI.log('loadModel: Model load successful');
         } catch (e) {
             window.electronAPI.log(`loadModel error: ${e}`);
             this._model = null;

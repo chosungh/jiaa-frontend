@@ -1,5 +1,7 @@
 import { app, BrowserWindow, protocol, net } from 'electron';
 import path from 'path';
+import fs from 'fs';
+import url from 'url';
 import started from 'electron-squirrel-startup';
 import { createAvatarWindow } from './windows/avatarWindow';
 import { createMainWindow } from './windows/mainWindow';
@@ -20,9 +22,28 @@ if (started) {
 app.whenReady().then(() => {
   // Handle local-model protocol
   protocol.handle('local-model', (request) => {
-    const modelPath = request.url.slice('local-model://'.length);
-    const filePath = path.join(app.getPath('userData'), 'live2d', decodeURIComponent(modelPath));
-    return net.fetch('file://' + filePath);
+    try {
+      const urlObj = new URL(request.url);
+      const pathname = decodeURIComponent(urlObj.pathname);
+
+      // pathname starts with '/', e.g. /뉵/뉵.model3.json
+      // path.join handles the leading slash correctly
+      const filePath = path.join(app.getPath('userData'), 'live2d', pathname);
+
+      const fileUrl = url.pathToFileURL(filePath).toString();
+      console.log(`[Protocol] Serving: ${request.url}`);
+      console.log(`[Protocol] Path: ${filePath}`);
+
+      if (!fs.existsSync(filePath)) {
+        console.error(`[Protocol] File NOT found: ${filePath}`);
+        return new Response('File Not Found', { status: 404 });
+      }
+
+      return net.fetch(fileUrl);
+    } catch (err: any) {
+      console.error(`[Protocol] Error handling ${request.url}:`, err);
+      return new Response(err.message, { status: 500 });
+    }
   });
 
   const avatarWindow = createAvatarWindow();
