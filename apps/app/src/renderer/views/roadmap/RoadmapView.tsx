@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
+import { MainLayout } from '../../components/MainLayout/MainLayout';
 import './roadmap.css';
 
 const RoadmapView: React.FC = () => {
     const [currentDate, setCurrentDate] = useState(new Date(2025, 11, 1)); // 2025년 12월 기준
-
-    const handleBack = () => {
-        window.location.href = '../dashboard/dashboard.html';
-    };
 
     // 캘린더 데이터 생성
     const getDaysInMonth = (year: number, month: number) => {
@@ -46,74 +43,71 @@ const RoadmapView: React.FC = () => {
     };
 
     return (
-        <div className="roadmap-container">
-            <header className="roadmap-page-header">
-                <button className="back-btn-minimal" onClick={handleBack}>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                </button>
-                <h1 className="main-title">
-                    <span className="brace">{'{'}</span>
-                    <span className="title-text">Load_Map Name</span>
-                    <span className="brace">{'}'}</span>
-                </h1>
-            </header>
+        <MainLayout activeTab="roadmap">
+            <div className="roadmap-container">
+                <header className="roadmap-page-header">
+                    <h1 className="main-title">
+                        <span className="brace">{'{'}</span>
+                        <span className="title-text">Load_Map Name</span>
+                        <span className="brace">{'}'}</span>
+                    </h1>
+                </header>
 
-            <main className="roadmap-layout">
-                {/* Left Section: Calendar Roadmap */}
-                <section className="section roadmap-main">
-                    <div className="section-header-row">
-                        <h2 className="section-label">로드맵</h2>
-                        <div className="calendar-controls">
-                            <span>2025년 12월</span>
+                <main className="roadmap-layout">
+                    {/* Left Section: Calendar Roadmap */}
+                    <section className="section roadmap-main">
+                        <div className="section-header-row">
+                            <h2 className="section-label">로드맵</h2>
+                            <div className="calendar-controls">
+                                <span>2025년 12월</span>
+                            </div>
                         </div>
-                    </div>
-                    <div className="content-card calendar-card">
-                        <div className="calendar-grid-header">
-                            {weekDays.map(day => <div key={day} className="weekday">{day}</div>)}
-                        </div>
-                        <div className="calendar-grid">
-                            {calendarDays.map((d, i) => (
-                                <div key={i} className={`calendar-cell ${d.status}`}>
-                                    {d.day && <span className="day-number">{d.day}</span>}
-                                    {d.status === 'active' && <div className="event-dot"></div>}
-                                    {d.status === 'completed' && <div className="completed-mark"></div>}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Right Section: Todo */}
-                <section className="section today-todo">
-                    <h2 className="section-label">오늘 할 일</h2>
-                    <div className="content-card">
-                        <div className="card-placeholder-content">
-                            <ul className="todo-list">
-                                {tasks.map((item) => (
-                                    <li
-                                        key={item.id}
-                                        className={item.done ? 'done' : ''}
-                                        onClick={() => toggleTask(item.id)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <div className="checkbox">
-                                            {item.done && (
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4">
-                                                    <path d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            )}
-                                        </div>
-                                        <span>{item.task}</span>
-                                    </li>
+                        <div className="content-card calendar-card">
+                            <div className="calendar-grid-header">
+                                {weekDays.map(day => <div key={day} className="weekday">{day}</div>)}
+                            </div>
+                            <div className="calendar-grid">
+                                {calendarDays.map((d, i) => (
+                                    <div key={i} className={`calendar-cell ${d.status}`}>
+                                        {d.day && <span className="day-number">{d.day}</span>}
+                                        {d.status === 'active' && <div className="event-dot"></div>}
+                                        {d.status === 'completed' && <div className="completed-mark"></div>}
+                                    </div>
                                 ))}
-                            </ul>
+                            </div>
                         </div>
-                    </div>
-                </section>
-            </main>
-        </div>
+                    </section>
+
+                    {/* Right Section: Todo */}
+                    <section className="section today-todo">
+                        <h2 className="section-label">오늘 할 일</h2>
+                        <div className="content-card">
+                            <div className="card-placeholder-content">
+                                <ul className="todo-list">
+                                    {tasks.map((item) => (
+                                        <li
+                                            key={item.id}
+                                            className={item.done ? 'done' : ''}
+                                            onClick={() => toggleTask(item.id)}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <div className="checkbox">
+                                                {item.done && (
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4">
+                                                        <path d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            <span>{item.task}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </MainLayout>
     );
 };
 

@@ -4,14 +4,41 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' local-model:; img-src 'self' local-model:;">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' local-model: http://localhost:8080; img-src 'self' local-model:;">
     <title>Dashboard</title>
     <link rel="stylesheet" href="./dashboard.css">
 </head>
 
 <body>
     <div id="root"></div>
-    <script src="../../live2dcubismcore.min.js"></script>
+    <script>
+        console.log('[Dashboard] HTML Content Loaded - Diagnostic started');
+
+        // Catch all errors including syntax and module load errors
+        window.onerror = function (message, source, lineno, colno, error) {
+            const msg = `[Dashboard HTML Error] ${message} at ${source}:${lineno}:${colno}`;
+            console.error(msg);
+            if (window.electronAPI && window.electronAPI.log) {
+                window.electronAPI.log(msg);
+            }
+        };
+
+        // Catch resource loading errors (like 404s for scripts)
+        window.addEventListener('error', function (e) {
+            if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+                const msg = `[Dashboard Resource Error] Failed to load ${e.target.tagName}: ${e.target.src || e.target.href}`;
+                console.error(msg);
+                if (window.electronAPI && window.electronAPI.log) {
+                    window.electronAPI.log(msg);
+                }
+            }
+        }, true);
+
+        if (window.electronAPI && window.electronAPI.log) {
+            window.electronAPI.log('[Dashboard] Diagnostic script initialized');
+        }
+    </script>
+    <script src="/live2dcubismcore.min.js"></script>
     <script type="module" src="./index.tsx"></script>
 </body>
 

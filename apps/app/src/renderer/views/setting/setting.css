@@ -1,1 +1,125 @@
+@import '../../styles/variables.css';
 
+/* Setting Container */
+.setting-container {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* Header */
+.setting-container .header {
+    margin-bottom: 20px;
+}
+
+.setting-container .header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+/* Setting Content Card */
+.setting-content {
+    background: rgba(26, 26, 26, 0.8);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #333;
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-subtitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-secondary);
+    margin: 0 0 15px 0;
+}
+
+/* Setting Section */
+.setting-section {
+    margin-bottom: 24px;
+}
+
+.setting-section:last-child {
+    margin-bottom: 0;
+}
+
+.setting-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.setting-description {
+    font-size: 14px;
+    color: #bbb;
+    margin: 8px 0 0 0;
+}
+
+/* Mode Buttons */
+.mode-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.mode-button {
+    flex: 1;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mode-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mode-button.active {
+    background: var(--accent-purple);
+    color: var(--text-primary);
+    border-color: var(--accent-purple);
+}
+
+/* Logout Button */
+.logout-button {
+    margin-top: 12px;
+    padding: 12px 24px;
+    background: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    border-radius: var(--radius-md);
+    color: #dc3545;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-button:hover:not(:disabled) {
+    background: rgba(220, 53, 69, 0.3);
+    border-color: rgba(220, 53, 69, 0.7);
+}
+
+.logout-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
