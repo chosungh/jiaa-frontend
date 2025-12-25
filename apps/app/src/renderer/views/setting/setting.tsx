@@ -1,107 +1,87 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useAppDispatch } from '../../store/hooks';
-import { signout } from '../../store/slices/authSlice';
+import { signout as signoutAction } from '../../store/slices/authSlice';
+import { signout } from '../../services/api';
+import { MainLayout } from '../../components/MainLayout/MainLayout';
 import './setting.css';
 
 const Setting: React.FC = () => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [screenMode, setScreenMode] = useState<'light' | 'dark' | 'system'>('dark');
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const dispatch = useAppDispatch();
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsDropdownOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    const handleDashboard = () => {
-        window.electronAPI?.openDashboard();
-    };
-
-    const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
-    };
-
-    const handleSignout = async () => {
-        dispatch(signout());
-        await window.electronAPI.deleteRefreshToken();
-        window.electronAPI.closeDashboard();
+    const handleLogout = async () => {
+        if (isLoggingOut) return;
+        
+        setIsLoggingOut(true);
+        try {
+            console.log('[Setting] Logging out...');
+            await signout();
+            dispatch(signoutAction());
+            console.log('[Setting] Logout successful, redirecting to signin...');
+            window.electronAPI?.openSignin();
+        } catch (error) {
+            console.error('[Setting] Logout error:', error);
+            // 에러가 발생해도 로컬 토큰은 이미 삭제됨 (signout 함수에서 처리)
+            dispatch(signoutAction());
+            window.electronAPI?.openSignin();
+        } finally {
+            setIsLoggingOut(false);
+        }
     };
 
     return (
-        <>
-            <button className="close-btn" id="close-btn" onClick={() => window.electronAPI?.closeDashboard()}>&times;</button>
-            <div className="dashboard-wrapper">
-                <nav className="sidebar">
-                    <div className="nav-item profile" onClick={toggleDropdown} ref={dropdownRef}>
-                        <div className="profile-circle"></div>
-                        {isDropdownOpen && (
-                            <div className="dropdown-menu">
-                                <div className="dropdown-item">내 프로필</div>
-                                <div className="dropdown-item" onClick={handleSignout}>로그아웃</div>
-                            </div>
-                        )}
+        <MainLayout activeTab="setting">
+            <div className="setting-container">
+                <header className="header">
+                    <h1>설정</h1>
+                </header>
+                <div className="setting-content">
+                    <h2 className="setting-subtitle">화면 설정</h2>
+
+                    {/* 화면 모드 섹션 */}
+                    <div className="setting-section">
+                        <label className="setting-label">화면모드</label>
+                        <div className="mode-buttons">
+                            <button
+                                className={`mode-button ${screenMode === 'light' ? 'active' : ''}`}
+                                onClick={() => setScreenMode('light')}
+                            >
+                                화이트 모드
+                            </button>
+                            <button
+                                className={`mode-button ${screenMode === 'dark' ? 'active' : ''}`}
+                                onClick={() => setScreenMode('dark')}
+                            >
+                                다크 모드
+                            </button>
+                            <button
+                                className={`mode-button ${screenMode === 'system' ? 'active' : ''}`}
+                                onClick={() => setScreenMode('system')}
+                            >
+                                시스템 설정
+                            </button>
+                        </div>
                     </div>
-                    <div className="nav-group">
-                        <div className="nav-item" onClick={handleDashboard}>
-                            <img src="/Home Icon 16px.svg" alt="" />
-                        </div>
-                        <div className="nav-item">
-                            <img src="/DashBoard Icon 24px.svg" alt="" />
-                        </div>
-                        <div className="nav-item">
-                            <img src="/Group Icon 24px.svg" alt="" />
-                        </div>
-                        <div className="nav-item active">
-                            <img src="/Setting Icon 24px.svg" alt="" />
-                        </div>
+
+                    {/* 아바타 섹션 */}
+                    <div className="setting-section">
+                        <label className="setting-label">아바타</label>
+                        <p className="setting-description">아바타에 대한 세부설명</p>
                     </div>
-                </nav>
 
-                <div className="setting-container">
-                    <h1 className="setting-page-title">설정</h1>
-                    <div className="setting-content">
-                        <h2 className="setting-subtitle">화면 설정</h2>
-
-                        {/* 화면 모드 섹션 */}
-                        <div className="setting-section">
-                            <label className="setting-label">화면모드</label>
-                            <div className="mode-buttons">
-                                <button
-                                    className={`mode-button ${screenMode === 'light' ? 'active' : ''}`}
-                                    onClick={() => setScreenMode('light')}
-                                >
-                                    화이트 모드
-                                </button>
-                                <button
-                                    className={`mode-button ${screenMode === 'dark' ? 'active' : ''}`}
-                                    onClick={() => setScreenMode('dark')}
-                                >
-                                    다크 모드
-                                </button>
-                                <button
-                                    className={`mode-button ${screenMode === 'system' ? 'active' : ''}`}
-                                    onClick={() => setScreenMode('system')}
-                                >
-                                    시스템 설정
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* 아바타 섹션 */}
-                        <div className="setting-section">
-                            <label className="setting-label">아바타</label>
-                            <p className="setting-description">아바타에 대한 세부설명</p>
-                        </div>
+                    {/* 계정 섹션 */}
+                    <h2 className="setting-subtitle">계정</h2>
+                    <div className="setting-section">
+                        <label className="setting-label">로그아웃</label>
+                        <p className="setting-description">현재 계정에서 로그아웃합니다.</p>
+                        <button 
+                            className="logout-button"
+                            onClick={handleLogout}
+                            disabled={isLoggingOut}
+                        >
+                            {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
+                        </button>
                     </div>
                 </div>
             </div>
