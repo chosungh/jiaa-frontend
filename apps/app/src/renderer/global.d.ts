@@ -4,6 +4,7 @@ export interface IElectronAPI {
     openSignin: () => void;
     openSignup: () => void;
     openSetting: () => void;
+    openProfile: () => void;
     closeSignin: () => void;
     closeDashboard: () => void;
     signinSuccess: (email: string) => void;

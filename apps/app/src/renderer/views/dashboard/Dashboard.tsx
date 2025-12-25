@@ -78,6 +78,14 @@ const Dashboard: React.FC = () => {
         window.electronAPI?.openSetting();
     }
 
+    const handleOpenProfile = () => {
+        window.electronAPI.openProfile();
+    };
+
+    const handleOpenSocial = () => {
+        window.location.href = '../social/social.html';
+    };
+
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -100,7 +108,7 @@ const Dashboard: React.FC = () => {
                         <div className="profile-circle"></div>
                         {isDropdownOpen && (
                             <div className="dropdown-menu">
-                                <div className="dropdown-item">내 프로필</div>
+                                <div className="dropdown-item" onClick={handleOpenProfile}>내 프로필</div>
                                 <div className="dropdown-item" onClick={handleSignout}>로그아웃</div>
                             </div>
                         )}
@@ -112,7 +120,7 @@ const Dashboard: React.FC = () => {
                         <div className="nav-item">
                             <img src="/DashBoard Icon 24px.svg" alt="" />
                         </div>
-                        <div className="nav-item">
+                        <div className="nav-item" onClick={handleOpenSocial} style={{ cursor: 'pointer' }}>
                             <img src="/Group Icon 24px.svg" alt="" />
                         </div>
                         <a id="signup-link" onClick={handleSetting} style={{ cursor: 'pointer' }}>
@@ -172,6 +180,9 @@ const Dashboard: React.FC = () => {
                                         <span>실전 프로젝트</span>
                                     </li>
                                 </ul>
+                                <div className="roadmap-footer">
+                                    <button className="create-btn" onClick={() => alert('로드맵 생성 기능 준비 중입니다.')}>로드맵 생성</button>
+                                </div>
                             </div>
                         </div>
 

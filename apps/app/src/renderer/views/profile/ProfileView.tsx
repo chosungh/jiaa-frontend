@@ -2,12 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { Live2DManager } from '../../managers/Live2DManager';
 import { signout } from '../../store/slices/authSlice';
-import './setting.css';
+import './profile.css';
 
-const Setting: React.FC = () => {
+const ProfileView: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [screenMode, setScreenMode] = useState<'light' | 'dark'>('dark');
     const dispatch = useAppDispatch();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const user = useAppSelector((state) => state.auth.user);
@@ -76,25 +75,17 @@ const Setting: React.FC = () => {
         window.location.href = '../dashboard/dashboard.html';
     };
 
-    const handleGoRoadmap = () => {
-        window.location.href = '../roadmap/roadmap.html';
-    };
-
-    const handleOpenProfile = () => {
-        window.electronAPI.openProfile();
-    };
-
     return (
         <>
             <button className="close-btn" id="close-btn" onClick={handleClose}>&times;</button>
             <div className="dashboard-wrapper">
                 {/* Sidebar */}
                 <nav className="sidebar">
-                    <div className="nav-item profile" onClick={toggleDropdown} ref={dropdownRef}>
+                    <div className="nav-item profile active" onClick={toggleDropdown} ref={dropdownRef}>
                         <div className="profile-circle"></div>
                         {isDropdownOpen && (
                             <div className="dropdown-menu">
-                                <div className="dropdown-item" onClick={handleOpenProfile}>내 프로필</div>
+                                <div className="dropdown-item">내 프로필</div>
                                 <div className="dropdown-item" onClick={handleSignout}>로그아웃</div>
                             </div>
                         )}
@@ -103,46 +94,60 @@ const Setting: React.FC = () => {
                         <div className="nav-item" onClick={handleGoHome}>
                             <img src="/Home Icon 16px.svg" alt="" />
                         </div>
-                        <div className="nav-item" onClick={handleGoRoadmap}>
-                            <img src="/DashBoard Icon 24px.svg" alt="" />
-                        </div>
-                        <div className="nav-item">
-                            <img src="/Group Icon 24px.svg" alt="" />
-                        </div>
-                        <div className="nav-item active">
-                            <img src="/Setting Icon 24px.svg" alt="" />
-                        </div>
                     </div>
                 </nav>
 
-                <div className="setting-container">
-                    <div className="setting-content">
-                        <h1 className="setting-title">설정</h1>
-                        <h2 className="setting-subtitle">화면 설정</h2>
+                <div className="profile-view-container">
+                    <div className="profile-content">
+                        <header className="profile-header">
+                            <h1 className="profile-title">내 프로필</h1>
+                        </header>
 
-                        {/* 화면 모드 섹션 */}
-                        <div className="setting-section">
-                            <label className="setting-label">화면모드</label>
-                            <div className="mode-buttons">
-                                <button
-                                    className={`mode-button ${screenMode === 'light' ? 'active' : ''}`}
-                                    onClick={() => setScreenMode('light')}
-                                >
-                                    화이트 모드
+                        <div className="profile-card">
+                            <div className="profile-avatar-large">
+                                <div className="avatar-placeholder"></div>
+                                <button className="edit-avatar-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                    </svg>
                                 </button>
-                                <button
-                                    className={`mode-button ${screenMode === 'dark' ? 'active' : ''}`}
-                                    onClick={() => setScreenMode('dark')}
-                                >
-                                    다크 모드
-                                </button>
+                            </div>
+
+                            <div className="profile-info">
+                                <div className="info-group">
+                                    <label>이름</label>
+                                    <div className="info-value">사용자</div>
+                                </div>
+                                <div className="info-group">
+                                    <label>이메일</label>
+                                    <div className="info-value">{user?.email || 'user@example.com'}</div>
+                                </div>
+                                <div className="info-group">
+                                    <label>소개</label>
+                                    <div className="info-value muted">자기소개를 입력해주세요.</div>
+                                </div>
+                            </div>
+
+                            <div className="profile-actions">
+                                <button className="btn-primary">프로필 수정</button>
+                                <button className="btn-secondary" onClick={handleSignout}>로그아웃</button>
                             </div>
                         </div>
 
-                        {/* 아바타 섹션 */}
-                        <div className="setting-section">
-                            <label className="setting-label">아바타</label>
-                            <p className="setting-description">아바타에 대한 세부설명</p>
+                        <div className="profile-stats-grid">
+                            <div className="stat-card">
+                                <span className="stat-label">진행 중인 로드맵</span>
+                                <span className="stat-number">3</span>
+                            </div>
+                            <div className="stat-card">
+                                <span className="stat-label">완료한 태스크</span>
+                                <span className="stat-number">24</span>
+                            </div>
+                            <div className="stat-card">
+                                <span className="stat-label">활동 일수</span>
+                                <span className="stat-number">12일</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -156,4 +161,4 @@ const Setting: React.FC = () => {
     );
 };
 
-export default Setting;
+export default ProfileView;

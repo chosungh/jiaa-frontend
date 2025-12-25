@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openSignin: () => ipcRenderer.send('open-signin'),
     openSignup: () => ipcRenderer.send('open-signup'),
     openSetting: () => ipcRenderer.send('open-setting'),
+    openProfile: () => ipcRenderer.send('open-profile'),
     closeSignin: () => ipcRenderer.send('close-signin'),
     closeDashboard: () => ipcRenderer.send('close-dashboard'),
     signinSuccess: (email: string) => ipcRenderer.send('signin-success', email),
