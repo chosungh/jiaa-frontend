@@ -105,7 +105,7 @@ const Setting: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </MainLayout>
     );
 };
 
