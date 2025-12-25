@@ -14,9 +14,11 @@ const Signin: React.FC = () => {
     const signinMutation = useMutation({
         mutationFn: signin,
         onSuccess: async (data) => {
+            console.log('[Signin] Success:', data.email);
             dispatch(setCredentials({ accessToken: data.accessToken, email: data.email }));
             // Save refresh token to safeStorage via IPC
             await window.electronAPI.saveRefreshToken(data.refreshToken);
+            console.log('[Signin] Calling signinSuccess IPC');
             // Notify Main process to switch views
             window.electronAPI.signinSuccess(data.email);
         },

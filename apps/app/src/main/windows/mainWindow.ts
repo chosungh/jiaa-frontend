@@ -62,10 +62,15 @@ export const toggleMainWindow = (): void => {
 export const loadSigninPage = (): void => {
     const mainWindow = getMainWindow();
     if (mainWindow && !mainWindow.isDestroyed()) {
+        const url = MAIN_WINDOW_VITE_DEV_SERVER_URL
+            ? `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/signin/signin.html`
+            : path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/signin/signin.html`);
+
+        console.log(`[Main] Navigating to Signin: ${url}`);
         if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-            mainWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/signin/signin.html`);
+            mainWindow.loadURL(url);
         } else {
-            mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/signin/signin.html`));
+            mainWindow.loadFile(url);
         }
     }
 };
@@ -84,10 +89,15 @@ export const loadSignupPage = (): void => {
 export const loadDashboardPage = (): void => {
     const mainWindow = getMainWindow();
     if (mainWindow && !mainWindow.isDestroyed()) {
+        const url = MAIN_WINDOW_VITE_DEV_SERVER_URL
+            ? `${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/dashboard/dashboard.html`
+            : path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/dashboard/dashboard.html`);
+
+        console.log(`[Main] Navigating to Dashboard: ${url}`);
         if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-            mainWindow.loadURL(`${MAIN_WINDOW_VITE_DEV_SERVER_URL}/views/dashboard/dashboard.html`);
+            mainWindow.loadURL(url);
         } else {
-            mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/views/dashboard/dashboard.html`));
+            mainWindow.loadFile(url);
         }
     }
 };
