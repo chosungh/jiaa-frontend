@@ -14,7 +14,7 @@ export interface SidebarProps {
     isProfileDropdownOpen: boolean;
     onProfileClick: () => void;
     onSignout: () => void;
-    onProfileDetail: () => void;
+    onProfileDetail?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -43,9 +43,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     return (
         <nav className="sidebar">
-            <div 
-                className="nav-item profile" 
-                onClick={onProfileClick} 
+            <div
+                className="nav-item profile"
+                onClick={onProfileClick}
                 ref={dropdownRef}
             >
                 <div className="profile-circle"></div>
