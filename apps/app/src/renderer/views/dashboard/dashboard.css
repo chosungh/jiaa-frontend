@@ -23,11 +23,10 @@ html {
     box-sizing: border-box;
     flex: 1;
     min-width: 0;
-    max-width: 900px;
+    width: 100%;
 }
 
 .header {
-    padding-right: 30px;
     box-sizing: border-box;
 }
 
@@ -45,7 +44,6 @@ html {
     flex: 1;
     overflow-y: auto;
     padding-bottom: 20px;
-    padding-right: 15px;
     width: 100%;
     box-sizing: border-box;
     scrollbar-gutter: stable;
@@ -62,8 +60,12 @@ html {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
+.radar-card {
+    min-height: 400px;
+}
+
 .roadmap-card {
-    min-height: 350px;
+    min-height: 400px;
 }
 
 .roadmap-list {
@@ -102,7 +104,7 @@ html {
 /* Bottom card */
 .bottom-card {
     grid-column: 1 / -1;
-    min-height: 180px;
+    min-height: 240px;
 }
 
 .card-header {
@@ -183,7 +185,7 @@ html {
 .radar-chart {
     width: 100%;
     height: 100%;
-    max-height: 220px;
+    max-height: 320px;
 }
 
 .radar-bg {
@@ -305,7 +307,7 @@ html {
 }
 
 .days-label li {
-    height: 11px;
+    height: 13px;
     /* Match grid cell height */
     display: flex;
     align-items: center;
@@ -326,8 +328,8 @@ html {
 }
 
 .grid-cell {
-    width: 11px;
-    height: 11px;
+    width: 13px;
+    height: 13px;
     background-color: #161b22;
     border-radius: 2px;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -396,4 +398,244 @@ html {
     background: var(--accent-primary);
     color: #000;
     font-weight: bold;
+}
+
+/* Create Roadmap Modal Styles */
+.create-roadmap-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(8px);
+}
+
+.create-roadmap-modal-content {
+    width: 85%;
+    max-width: 600px;
+    height: 70vh;
+    background: rgba(26, 26, 26, 0.95);
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 30px;
+    box-sizing: border-box;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.create-roadmap-modal-gradient {
+    display: none;
+}
+
+.create-roadmap-modal-content .create-loadmap-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    min-height: 0;
+}
+
+.create-roadmap-modal-content .text-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: var(--text-primary);
+}
+
+.create-roadmap-modal-content .create-loadmap-text p {
+    margin: 10px 0;
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.create-roadmap-modal-content .messages-container {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 8px;
+    min-height: 0;
+}
+
+.create-roadmap-modal-content .messages-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.create-roadmap-modal-content .messages-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.create-roadmap-modal-content .messages-container::-webkit-scrollbar-thumb {
+    background: rgba(138, 0, 196, 0.5);
+    border-radius: 3px;
+}
+
+.create-roadmap-modal-content .messages-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 0, 196, 0.7);
+}
+
+.create-roadmap-modal-content .message-item {
+    display: flex;
+    animation: slideIn 0.3s ease-out;
+}
+
+.create-roadmap-modal-content .user-message {
+    justify-content: flex-end;
+}
+
+.create-roadmap-modal-content .ai-message {
+    justify-content: flex-start;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.create-roadmap-modal-content .message-text {
+    padding: 12px 16px;
+    border-radius: 18px;
+    max-width: 70%;
+    word-wrap: break-word;
+    font-size: 15px;
+    line-height: 1.4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.create-roadmap-modal-content .user-message .message-text {
+    background: var(--accent-purple);
+    color: #ffffff;
+}
+
+.create-roadmap-modal-content .ai-message .message-text {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.create-roadmap-modal-content .loading-message {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 16px 20px;
+}
+
+.create-roadmap-modal-content .loading-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: dotPulse 1.4s infinite ease-in-out;
+}
+
+.create-roadmap-modal-content .loading-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.create-roadmap-modal-content .loading-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.create-roadmap-modal-content .loading-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+    0%, 60%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    30% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+.create-roadmap-modal-content .input-form {
+    width: 100%;
+}
+
+.create-roadmap-modal-content .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.create-roadmap-modal-content .input-wrapper:focus-within {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent-purple);
+}
+
+.create-roadmap-modal-content .loadmap-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.create-roadmap-modal-content .loadmap-input::placeholder {
+    color: var(--text-muted);
+}
+
+.create-roadmap-modal-content .send-button {
+    background: var(--accent-purple);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.2s ease;
+    margin-right: 4px;
+    border-radius: 6px;
+}
+
+.create-roadmap-modal-content .send-button:hover:not(:disabled) {
+    background: #6b4bc9;
+    transform: translateY(-1px);
+}
+
+.create-roadmap-modal-content .send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.create-roadmap-modal-content .send-button svg {
+    width: 20px;
+    height: 20px;
 }

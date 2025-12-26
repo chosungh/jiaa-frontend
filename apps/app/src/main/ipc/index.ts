@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow, Menu, app, IpcMainEvent } from 'electron';
 import { getMainWindow, getAvatarWindow } from '../windows/manager';
-import { createMainWindow, loadSigninPage, loadSignupPage, loadDashboardPage, loadSettingPage, loadProfilePage, loadFirstCreateLoadmap, loadAvartarSelect } from '../windows/mainWindow';
+import { createMainWindow, loadSigninPage, loadSignupPage, loadDashboardPage, loadSettingPage, loadProfilePage, loadFirstCreateLoadmap, loadAvartarSelect, loadAvatarSetting, loadRoadmapList } from '../windows/mainWindow';
 import { checkModelExists, downloadAndExtractModel, getModelDirectory } from '../services/modelManager';
 import { MODEL_NAME } from '../../common/constants';
 
@@ -133,6 +133,32 @@ export const registerIpcHandlers = (): void => {
         }
     });
 
+    // IPC Event for Opening Profile Page
+    ipcMain.on('open-profile', () => {
+        console.log('[Main] open-profile event received');
+        const mainWindow = getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            loadProfilePage();
+            mainWindow.show();
+        } else {
+            createMainWindow();
+            loadProfilePage();
+        }
+    });
+
+    // IPC Event for Opening First Create Loadmap Page
+    ipcMain.on('open-first-create-loadmap', () => {
+        console.log('[Main] open-first-create-loadmap event received');
+        const mainWindow = getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            loadFirstCreateLoadmap();
+            mainWindow.show();
+        } else {
+            createMainWindow();
+            loadFirstCreateLoadmap();
+        }
+    });
+
     ipcMain.on('close-setting', () => {
         const mainWindow = getMainWindow();
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -179,6 +205,30 @@ export const registerIpcHandlers = (): void => {
         } else {
             createMainWindow();
             loadAvartarSelect();
+        }
+    });
+
+    ipcMain.on('open-roadmap-list', () => {
+        console.log('[Main] open-avartar-select event received');
+        const mainWindow = getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            loadRoadmapList();
+            mainWindow.show();
+        } else {
+            createMainWindow();
+            loadRoadmapList();
+        }
+    });
+
+    ipcMain.on('open-avatar-setting', () => {
+        console.log('[Main] open-avartar-select event received');
+        const mainWindow = getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            loadAvatarSetting();
+            mainWindow.show();
+        } else {
+            createMainWindow();
+            loadAvatarSetting();
         }
     });
 

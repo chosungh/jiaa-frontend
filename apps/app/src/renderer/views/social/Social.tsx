@@ -33,7 +33,7 @@ const Social: React.FC = () => {
     ];
 
     return (
-        <MainLayout activeTab="group">
+        <MainLayout activeTab="group" hideAvatar={true}>
             <div className="social-main-container">
                 {/* Search Bar */}
                 <div className="search-container">
