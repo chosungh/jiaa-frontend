@@ -31,7 +31,7 @@ const Setting: React.FC = () => {
     };
 
     return (
-        <MainLayout activeTab="setting">
+        <MainLayout activeTab="setting" hideAvatar={true}>
             <div className="setting-container">
                 <header className="header">
                     <h1>설정</h1>

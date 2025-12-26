@@ -14,10 +14,12 @@
 .search-container {
     padding: 20px 30px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    justify-content: center;
+    text-align: center;
 }
 
 .search-input {
-    width: 100%;
+    width: 90%;
     padding: 12px 20px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -26,6 +28,7 @@
     font-size: 14px;
     outline: none;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .search-input::placeholder {
@@ -208,7 +211,7 @@
 .create-group-btn {
     position: fixed;
     bottom: 30px;
-    right: 450px;
+    right: 30px;
     padding: 14px 28px;
     background: white;
     color: #1a1a1a;

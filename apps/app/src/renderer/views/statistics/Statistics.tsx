@@ -94,7 +94,7 @@ export const Statistics: React.FC = () => {
     const avgY = padding + (chartHeight - (avgValue / maxScale) * chartHeight);
 
     return (
-        <MainLayout activeTab="home">
+        <MainLayout activeTab="home" hideAvatar={true}>
             <div className="statistics-container">
                 <header className="statistics-header">
                     <h1>주간 학습 통계</h1>
