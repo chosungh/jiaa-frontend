@@ -171,6 +171,43 @@ export const registerIpcHandlers = (): void => {
         }
     });
 
+    ipcMain.on('open-first-create-loadmap', () => {
+        console.log('[Main] open-first-create-loadmap event received');
+        const mainWindow = getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            loadFirstCreateLoadmap();
+            mainWindow.show();
+        } else {
+            createMainWindow();
+            loadFirstCreateLoadmap();
+        }
+    });
+
+    // IPC Event for Opening Profile Page
+    ipcMain.on('open-profile', () => {
+        console.log('[Main] open-profile event received');
+        const mainWindow = getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            loadProfilePage();
+            mainWindow.show();
+        } else {
+            createMainWindow();
+            loadProfilePage();
+        }
+    });
+
+    ipcMain.on('open-avartar-select', () => {
+        console.log('[Main] open-avartar-select event received');
+        const mainWindow = getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            loadAvartarSelect();
+            mainWindow.show();
+        } else {
+            createMainWindow();
+            loadAvartarSelect();
+        }
+    });
+
 
     // IPC Event for Avatar Movement Sync
     // Broadcasts mouse position from one window to all other windows
