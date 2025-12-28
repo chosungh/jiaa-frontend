@@ -29,47 +29,24 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-}
-
-.back-btn {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateX(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.back-btn:active {
-    transform: scale(0.95);
+    padding: 32px 40px 0 40px;
+    box-sizing: border-box;
 }
 
 .statistics-header h1 {
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 28px;
+    font-weight: 800;
     margin: 0;
+    color: var(--text-primary);
 }
 
 .statistics-content {
     flex: 1;
     width: 100%;
     overflow-y: auto;
-    padding-bottom: 30px;
+    padding: 0 40px 30px 40px;
     scrollbar-width: none;
+    box-sizing: border-box;
 }
 
 .statistics-content::-webkit-scrollbar {
@@ -97,12 +74,12 @@ body {
 .chart-card,
 .radar-card,
 .monthly-card {
-    background: rgba(26, 26, 26, 0.4);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     min-width: 0;
     box-sizing: border-box;
@@ -114,8 +91,8 @@ body {
 .radar-card:hover,
 .monthly-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: var(--card-shadow);
+    border-color: var(--accent-primary);
     z-index: 10;
 }
 
@@ -134,7 +111,7 @@ body {
 .chart-title-row h3 {
     margin: 0;
     font-size: 18px;
-    color: white;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
@@ -144,9 +121,9 @@ body {
 }
 
 .nav-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--input-bg);
     border: none;
-    color: white;
+    color: var(--text-primary);
     width: 32px;
     height: 32px;
     border-radius: 8px;
@@ -160,7 +137,7 @@ body {
 }
 
 .nav-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--hover-bg);
     transform: translateY(-2px);
 }
 
@@ -200,13 +177,13 @@ body {
 }
 
 .radar-chart .radar-bg {
-    fill: rgba(255, 255, 255, 0.03);
-    stroke: rgba(255, 255, 255, 0.1);
+    fill: var(--input-bg);
+    stroke: var(--border-subtle);
 }
 
 .radar-chart .radar-grid {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.05);
+    stroke: var(--border-subtle);
 }
 
 .radar-chart .radar-data {
@@ -216,7 +193,7 @@ body {
 }
 
 .radar-chart .radar-label {
-    fill: rgba(255, 255, 255, 0.7);
+    fill: var(--text-secondary);
     font-size: 11px;
     font-weight: 500;
 }
@@ -230,13 +207,13 @@ body {
 }
 
 .monthly-item {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--input-bg);
     border-radius: 12px;
     padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
 }
 
 .month-info .month-name {

@@ -48,16 +48,16 @@ export class Live2DManager {
     }
 
     public initialize(canvas: HTMLCanvasElement): boolean {
-        window.electronAPI.log(`Live2DManager.initialize called (id=${canvas.id})`);
+        electronAPI.log(`Live2DManager.initialize called (id=${canvas.id})`);
 
         // Early return if already initialized with the same canvas
         if (Live2DManager._isInitialized) {
             if (this._canvas === canvas) {
-                window.electronAPI.log('Already initialized with same canvas');
+                electronAPI.log('Already initialized with same canvas');
                 return true;
             }
             // Clean up before re-initializing with different canvas
-            window.electronAPI.log('Canvas changed, cleaning up and re-initializing');
+            electronAPI.log('Canvas changed, cleaning up and re-initializing');
             this.cleanupModel();
             this._canvas = canvas;
             this._gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
@@ -76,9 +76,9 @@ export class Live2DManager {
 
         this._gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true });
         if (this._gl) {
-            window.electronAPI.log(`WebGL context created successfully for canvas: ${canvas.id}`);
+            electronAPI.log(`WebGL context created successfully for canvas: ${canvas.id}`);
         } else {
-            window.electronAPI.log(`Failed to get WebGL context for canvas: ${canvas.id}`);
+            electronAPI.log(`Failed to get WebGL context for canvas: ${canvas.id}`);
             Live2DManager._isInitialized = false;
             return false;
         }
@@ -112,29 +112,29 @@ export class Live2DManager {
     public async loadModel(): Promise<void> {
         // Check guards first
         if (!this._gl || !this._textureManager) {
-            window.electronAPI.log('loadModel: Missing gl or textureManager, skipping');
+            electronAPI.log('loadModel: Missing gl or textureManager, skipping');
             return;
         }
         if (this._isModelLoading) {
-            window.electronAPI.log('loadModel: Already loading, skipping');
+            electronAPI.log('loadModel: Already loading, skipping');
             return;
         }
         if (this._model) {
-            window.electronAPI.log('loadModel: Model already exists, skipping');
+            electronAPI.log('loadModel: Model already exists, skipping');
             return;
         }
 
         // Set loading flag immediately (synchronously)
         this._isModelLoading = true;
-        window.electronAPI.log(`loadModel: Starting model load for ${MODEL_NAME}`);
+        electronAPI.log(`loadModel: Starting model load for ${MODEL_NAME}`);
 
         try {
-            const basePath = await window.electronAPI.getModelBasePath();
-            window.electronAPI.log(`loadModel: Using base path: ${basePath}`);
+            const basePath = await electronAPI.getModelBasePath();
+            electronAPI.log(`loadModel: Using base path: ${basePath}`);
 
             // Guard against the instance being released during the await
             if (!Live2DManager._isInitialized || !this._gl || !this._textureManager) {
-                window.electronAPI.log('loadModel: Manager was released during await, aborting');
+                electronAPI.log('loadModel: Manager was released during await, aborting');
                 return;
             }
 
@@ -145,13 +145,13 @@ export class Live2DManager {
 
             // Final check if we were released during the long loadAssets call
             if (!this._model) {
-                window.electronAPI.log('loadModel: Model was released during loadAssets, aborting');
+                electronAPI.log('loadModel: Model was released during loadAssets, aborting');
                 return;
             }
 
-            window.electronAPI.log('loadModel: Model load successful');
+            electronAPI.log('loadModel: Model load successful');
         } catch (e) {
-            window.electronAPI.log(`loadModel error: ${e}`);
+            electronAPI.log(`loadModel error: ${e}`);
             this._model = null;
         } finally {
             this._isModelLoading = false;
@@ -211,7 +211,7 @@ export class Live2DManager {
                 }
             } catch (e) {
                 console.error('Live2D Render Error:', e);
-                window.electronAPI.log(`Live2D Render Error: ${e}`);
+                electronAPI.log(`Live2D Render Error: ${e}`);
             }
 
             this._requestId = requestAnimationFrame(loop);
@@ -252,8 +252,8 @@ export class Live2DManager {
         this._mouseY = -((y / this._canvas.clientHeight) * 2 - 1);
 
         // Broadcast to other windows if sync is enabled
-        if (broadcast && this._syncEnabled && window.electronAPI?.syncAvatarMovement) {
-            window.electronAPI.syncAvatarMovement(this._mouseX, this._mouseY);
+        if (broadcast && this._syncEnabled && electronAPI.syncAvatarMovement) {
+            electronAPI.syncAvatarMovement(this._mouseX, this._mouseY);
         }
     }
 
@@ -277,8 +277,8 @@ export class Live2DManager {
         this._syncEnabled = true;
 
         // Listen for movement updates from other windows
-        if (window.electronAPI?.onAvatarMovementUpdate) {
-            this._cleanupSync = window.electronAPI.onAvatarMovementUpdate((mouseX, mouseY) => {
+        if (electronAPI.onAvatarMovementUpdate) {
+            this._cleanupSync = electronAPI.onAvatarMovementUpdate((mouseX, mouseY) => {
                 this.setMousePosition(mouseX, mouseY);
             });
         }

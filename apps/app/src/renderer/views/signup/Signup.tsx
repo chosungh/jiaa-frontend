@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { InputGroup } from '@repo/ui';
 import { signup, sendVerificationCode, verifyEmail, ApiError } from '../../services/api';
@@ -8,6 +9,7 @@ import './signup.css';
 type SignupStep = 'email' | 'verify' | 'form';
 
 const Signup: React.FC = () => {
+    const navigate = useNavigate();
     const [step, setStep] = useState<SignupStep>('email');
     const [email, setEmail] = useState('');
     const [verificationCode, setVerificationCode] = useState('');
@@ -60,7 +62,7 @@ const Signup: React.FC = () => {
             setSuccessMessage('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
             setErrorMessage('');
             setTimeout(() => {
-                window.electronAPI?.openSignin();
+                navigate('/signin');
             }, 1500);
         },
         onError: (error: Error) => {
@@ -137,7 +139,7 @@ const Signup: React.FC = () => {
     };
 
     const handleBackToSignin = () => {
-        window.electronAPI?.openSignin();
+        navigate('/signin');
     };
 
     const handleBackToEmail = () => {

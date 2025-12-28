@@ -87,7 +87,7 @@ export const registerIpcHandlers = (): void => {
         console.log(`[Main] User Signed In: ${email}`);
 
         // Navigate mainWindow to Dashboard
-        loadDashboardPage();
+        // loadDashboardPage(); // Removed to allow SPA routing
 
         // Hide Avatar Window while Dashboard is open
         const avatarWindow = getAvatarWindow();

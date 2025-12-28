@@ -16,7 +16,8 @@ export const createMainWindow = (): void => {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 720,
-        frame: false,
+        titleBarStyle: 'hidden',
+        trafficLightPosition: { x: 20, y: 18 },
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -46,6 +47,13 @@ export const createMainWindow = (): void => {
     });
 
     mainWindow.on('restore', () => {
+        const avatarWindow = getAvatarWindow();
+        if (avatarWindow && !avatarWindow.isDestroyed()) {
+            avatarWindow.hide();
+        }
+    });
+
+    mainWindow.on('show', () => {
         const avatarWindow = getAvatarWindow();
         if (avatarWindow && !avatarWindow.isDestroyed()) {
             avatarWindow.hide();

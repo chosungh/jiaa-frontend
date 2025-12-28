@@ -9,15 +9,13 @@ import './MainLayout.css';
 
 export const MainLayout: React.FC = () => {
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-    const [isMaximized, setIsMaximized] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-
     // Determine active tab based on current path
     const getActiveTab = (): 'home' | 'dashboard' | 'group' | 'setting' | 'roadmap' | 'avatar' | 'profile' | null => {
         const path = location.pathname;
         if (path === '/profile') return 'profile';
-        if (path === '/') return 'home';
+        if (path === '/dashboard') return 'home';
         if (path === '/statistics') return 'dashboard';
         if (path.startsWith('/roadmap')) return 'roadmap';
         if (path === '/social') return 'group';
@@ -30,7 +28,7 @@ export const MainLayout: React.FC = () => {
     const isProfileActive = activeTab === 'profile';
 
     // 대시보드(홈)에서만 아바타 표시
-    const shouldShowAvatar = location.pathname === '/';
+    const shouldShowAvatar = location.pathname === '/dashboard';
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const dispatch = useAppDispatch();
 
@@ -48,37 +46,6 @@ export const MainLayout: React.FC = () => {
             navigate('/signin');
         }
     };
-
-    const handleClose = () => {
-        window.electronAPI?.closeDashboard();
-    };
-
-    const handleMinimize = () => {
-        window.electronAPI?.minimize();
-    };
-
-    const handleMaximizeToggle = async () => {
-        if (isMaximized) {
-            window.electronAPI?.unmaximize();
-        } else {
-            window.electronAPI?.maximize();
-        }
-        const state = await window.electronAPI?.isMaximized();
-        setIsMaximized(state);
-    };
-
-    // Track window maximized state
-    useEffect(() => {
-        const checkMaximized = async () => {
-            const state = await window.electronAPI?.isMaximized();
-            setIsMaximized(state);
-        };
-
-        window.addEventListener('resize', checkMaximized);
-        checkMaximized();
-
-        return () => window.removeEventListener('resize', checkMaximized);
-    }, []);
 
     // Live2D Init - 아바타가 표시될 때만 초기화
     useEffect(() => {
@@ -111,7 +78,7 @@ export const MainLayout: React.FC = () => {
             icon: '/Home Icon 16px.svg',
             label: '홈',
             active: activeTab === 'home',
-            onClick: () => navigate('/')
+            onClick: () => navigate('/dashboard')
         },
         {
             id: 'dashboard',
@@ -153,6 +120,20 @@ export const MainLayout: React.FC = () => {
     return (
         <div className={`main-layout ${!shouldShowAvatar ? 'no-avatar' : ''}`}>
             <div className="title-bar-drag-area"></div>
+            <div className="nav-controls">
+                <button onClick={() => navigate(-1)} className="nav-btn" title="뒤로가기">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <button onClick={() => navigate(1)} className="nav-btn" title="앞으로가기">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
             <Sidebar
                 items={sidebarItems}
                 isProfileDropdownOpen={isProfileDropdownOpen}
@@ -163,30 +144,6 @@ export const MainLayout: React.FC = () => {
             />
 
             <main className="main-content">
-                <div className="window-controls">
-                    <button className="win-btn minimize-btn" onClick={handleMinimize} title="최소화">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                    </button>
-                    <button className="win-btn maximize-btn" onClick={handleMaximizeToggle} title={isMaximized ? "이전 크기로" : "최대화"}>
-                        {isMaximized ? (
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
-                            </svg>
-                        ) : (
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            </svg>
-                        )}
-                    </button>
-                    <button className="win-btn close-btn" onClick={handleClose} title="닫기">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
                 <Outlet />
             </main>
 

@@ -80,7 +80,7 @@ export class LAppModel extends CubismUserModel {
     public async loadAssets(dir: string, fileName: string, textureManager: LAppTextureManager, gl: WebGLRenderingContext): Promise<void> {
         try {
             this._modelHomeDir = dir;
-            window.electronAPI.log(`LAppModel.loadAssets: Starting load from ${dir}${fileName}`);
+            electronAPI.log(`LAppModel.loadAssets: Starting load from ${dir}${fileName}`);
 
             const path = `${dir}${fileName}`;
             const response = await fetch(path);
@@ -93,7 +93,7 @@ export class LAppModel extends CubismUserModel {
             const mocFileName = this._modelSetting.getModelFileName();
             if (mocFileName != '') {
                 const mocPath = `${this._modelHomeDir}${mocFileName}`;
-                window.electronAPI.log(`LAppModel.loadAssets: Loading moc3 from ${mocPath}`);
+                electronAPI.log(`LAppModel.loadAssets: Loading moc3 from ${mocPath}`);
                 const mocResp = await fetch(mocPath);
                 if (!mocResp.ok) throw new Error(`Moc request failed: ${mocResp.status}`);
                 const mocBuffer = await mocResp.arrayBuffer();
@@ -101,18 +101,18 @@ export class LAppModel extends CubismUserModel {
             }
 
             // Create Renderer
-            window.electronAPI.log('LAppModel.loadAssets: Creating renderer');
+            electronAPI.log('LAppModel.loadAssets: Creating renderer');
             this.createRenderer();
             this.getRenderer().startUp(gl);
             this.getRenderer().setIsPremultipliedAlpha(true);
 
             // Load Textures
             const textureCount = this._modelSetting.getTextureCount();
-            window.electronAPI.log(`LAppModel.loadAssets: Loading ${textureCount} textures`);
+            electronAPI.log(`LAppModel.loadAssets: Loading ${textureCount} textures`);
             for (let i = 0; i < textureCount; i++) {
                 const textureFileName = this._modelSetting.getTextureFileName(i);
                 const texturePath = `${this._modelHomeDir}${textureFileName}`;
-                window.electronAPI.log(`LAppModel.loadAssets: Loading texture[${i}] from ${texturePath}`);
+                electronAPI.log(`LAppModel.loadAssets: Loading texture[${i}] from ${texturePath}`);
 
                 const textureInfo = await textureManager.createTextureFromPngFile(gl, texturePath, true);
                 if (!textureInfo) throw new Error(`Texture load failed: ${texturePath}`);
@@ -123,7 +123,7 @@ export class LAppModel extends CubismUserModel {
             const physicsFileName = this._modelSetting.getPhysicsFileName();
             if (physicsFileName != '') {
                 const physicsPath = `${this._modelHomeDir}${physicsFileName}`;
-                window.electronAPI.log(`LAppModel.loadAssets: Loading physics from ${physicsPath}`);
+                electronAPI.log(`LAppModel.loadAssets: Loading physics from ${physicsPath}`);
                 const physicsResp = await fetch(physicsPath);
                 if (physicsResp.ok) {
                     const physicsBuffer = await physicsResp.arrayBuffer();
@@ -135,7 +135,7 @@ export class LAppModel extends CubismUserModel {
             const poseFileName = this._modelSetting.getPoseFileName();
             if (poseFileName != '') {
                 const posePath = `${this._modelHomeDir}${poseFileName}`;
-                window.electronAPI.log(`LAppModel.loadAssets: Loading pose from ${posePath}`);
+                electronAPI.log(`LAppModel.loadAssets: Loading pose from ${posePath}`);
                 const poseResp = await fetch(posePath);
                 if (poseResp.ok) {
                     const poseBuffer = await poseResp.arrayBuffer();
@@ -150,9 +150,9 @@ export class LAppModel extends CubismUserModel {
             this._modelMatrix.setY(0);
 
             this._isLoaded = true;
-            window.electronAPI.log(`LAppModel.loadAssets: Live2D Model Loaded Successfully: ${fileName}`);
+            electronAPI.log(`LAppModel.loadAssets: Live2D Model Loaded Successfully: ${fileName}`);
         } catch (e: any) {
-            window.electronAPI.log(`LAppModel.loadAssets error: ${e.message || e}`);
+            electronAPI.log(`LAppModel.loadAssets error: ${e.message || e}`);
             console.error('LAppModel.loadAssets error:', e);
             this._isLoaded = false;
         }

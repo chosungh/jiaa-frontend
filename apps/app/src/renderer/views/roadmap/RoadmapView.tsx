@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getRoadmap, updateRoadmapItem } from '../../services/chatApiService';
 import './roadmap.css';
 
@@ -53,59 +55,37 @@ interface SelectedTaskInfo {
 }
 
 const RoadmapView: React.FC = () => {
-    const [roadmapData, setRoadmapData] = useState<RoadmapData | null>(null);
-    const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [initialDateSet, setInitialDateSet] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTask, setSelectedTask] = useState<SelectedTaskInfo | null>(null); // 모달용
 
+    const { id: roadmapId } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    // URL에서 roadmap_id 가져오기
+    // React Query로 로드맵 데이터 가져오기
+    const { data: roadmapData, isLoading: loading } = useQuery<RoadmapData | null>({
+        queryKey: ['roadmap', roadmapId],
+        queryFn: () => roadmapId ? getRoadmap(roadmapId) : Promise.resolve(null),
+        enabled: !!roadmapId,
+        staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    });
+
+    // 로드맵 데이터가 로드되면 시작 날짜 설정
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const roadmapId = urlParams.get('id');
-
-        if (roadmapId) {
-            loadRoadmap(roadmapId);  // parseInt 제거 - MongoDB ObjectId는 문자열
-        } else {
-            setLoading(false);
-        }
-    }, []);
-
-    const loadRoadmap = async (roadmapId: string) => {
-        try {
-            setLoading(true);
-            const data = await getRoadmap(roadmapId);
-            console.log('[RoadmapView] 로드맵 데이터:', data);
-            if (data) {
-                setRoadmapData(data);
-
-                // 첫 번째 항목(day: 1)의 created_at을 기준으로 시작 날짜 설정
-                const firstItem = data.items?.find((item: RoadmapItem) => item.day === 1);
-                if (firstItem && firstItem.created_at) {
-                    const start = new Date(firstItem.created_at);
-                    console.log('[RoadmapView] 시작 날짜 (created_at):', start);
-                    setStartDate(start);
-
-                    // 시작 날짜가 있는 달을 기본으로 표시 (한 번만 설정)
-                    if (!initialDateSet) {
-                        setCurrentDate(new Date(start.getFullYear(), start.getMonth(), 1));
-                        setInitialDateSet(true);
-                    }
-                } else {
-                    console.warn('[RoadmapView] 첫 번째 항목의 created_at이 없습니다:', data.items);
-                }
-            } else {
-                console.warn('[RoadmapView] 로드맵 데이터가 없습니다');
+        if (roadmapData && !initialDateSet) {
+            const firstItem = roadmapData.items?.find((item: RoadmapItem) => item.day === 1);
+            if (firstItem && firstItem.created_at) {
+                const start = new Date(firstItem.created_at);
+                console.log('[RoadmapView] 시작 날짜 (created_at):', start);
+                setStartDate(start);
+                setCurrentDate(new Date(start.getFullYear(), start.getMonth(), 1));
+                setInitialDateSet(true);
             }
-        } catch (error) {
-            console.error('로드맵 로드 오류:', error);
-        } finally {
-            setLoading(false);
         }
-    };
+    }, [roadmapData, initialDateSet]);
 
     // 캘린더 데이터 생성 (실제 날짜 기반)
     const getDaysInMonth = (year: number, month: number) => {
@@ -227,23 +207,8 @@ const RoadmapView: React.FC = () => {
             const result = await updateRoadmapItem(roadmapItemId, newStatus);
 
             if (result && roadmapData) {
-                // roadmapData의 해당 항목 업데이트
-                const updatedItems = roadmapData.items.map((item, idx) => {
-                    if (idx === dayIndex) {
-                        const updatedTasks = item.tasks.map((task, tIdx) =>
-                            tIdx === taskIndex
-                                ? { ...task, is_completed: newStatus ? 1 : 0, completed_at: result.completed_at }
-                                : task
-                        );
-                        return { ...item, tasks: updatedTasks };
-                    }
-                    return item;
-                });
-
-                setRoadmapData({
-                    ...roadmapData,
-                    items: updatedItems
-                });
+                // 캐시 무효화하여 데이터 새로고침
+                queryClient.invalidateQueries({ queryKey: ['roadmap', roadmapId] });
             }
         } catch (error) {
             console.error('로드맵 항목 업데이트 오류:', error);
@@ -282,11 +247,7 @@ const RoadmapView: React.FC = () => {
         <>
             <div className="roadmap-container">
                 <header className="roadmap-page-header">
-                    <button className="back-btn" onClick={() => window.history.back()} title="뒤로가기">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="15 18 9 12 15 6"></polyline>
-                        </svg>
-                    </button>
+
                     <h1 className="main-title">
                         <span className="title-text">{roadmapData.name}</span>
                     </h1>
@@ -446,52 +407,25 @@ const RoadmapView: React.FC = () => {
             {
                 selectedTask && (
                     <div
-                        className="modal-overlay"
-                        style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 1000
-                        }}
+                        className="roadmap-modal-overlay"
                         onClick={() => setSelectedTask(null)}
                     >
                         <div
-                            className="modal-content"
-                            style={{
-                                backgroundColor: 'white',
-                                borderRadius: '12px',
-                                padding: '2rem',
-                                maxWidth: '600px',
-                                maxHeight: '80vh',
-                                overflowY: 'auto',
-                                boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
-                            }}
+                            className="roadmap-modal-content"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* 모달 헤더 */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>{selectedTask.task}</h2>
+                            <div className="roadmap-modal-header">
+                                <h2 className="roadmap-modal-title">{selectedTask.task}</h2>
                                 <button
                                     onClick={() => setSelectedTask(null)}
-                                    style={{
-                                        border: 'none',
-                                        background: 'none',
-                                        fontSize: '1.5rem',
-                                        cursor: 'pointer',
-                                        color: '#888'
-                                    }}
+                                    className="roadmap-modal-close-btn"
                                 >
                                     ✕
                                 </button>
                             </div>
 
-                            <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+                            <p className="roadmap-modal-subtitle">
                                 예상 시간: {selectedTask.time}
                             </p>
 
@@ -499,9 +433,9 @@ const RoadmapView: React.FC = () => {
                                 <div>
                                     {/* 학습 목표 */}
                                     {selectedTask.details.objectives && selectedTask.details.objectives.length > 0 && (
-                                        <div style={{ marginBottom: '1.5rem' }}>
-                                            <h3 style={{ fontSize: '1.1rem', color: '#6c5ce7', marginBottom: '0.5rem' }}>🎯 학습 목표</h3>
-                                            <ul style={{ marginLeft: '1.5rem', color: '#555' }}>
+                                        <div className="roadmap-modal-section">
+                                            <h3 className="roadmap-modal-section-title objectives">🎯 학습 목표</h3>
+                                            <ul className="roadmap-modal-list">
                                                 {selectedTask.details.objectives.map((obj, i) => (
                                                     <li key={i}>{obj}</li>
                                                 ))}
@@ -511,19 +445,13 @@ const RoadmapView: React.FC = () => {
 
                                     {/* 핵심 개념 */}
                                     {selectedTask.details.key_concepts && selectedTask.details.key_concepts.length > 0 && (
-                                        <div style={{ marginBottom: '1.5rem' }}>
-                                            <h3 style={{ fontSize: '1.1rem', color: '#00b894', marginBottom: '0.5rem' }}>💡 핵심 개념</h3>
+                                        <div className="roadmap-modal-section">
+                                            <h3 className="roadmap-modal-section-title concepts">💡 핵심 개념</h3>
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                                 {selectedTask.details.key_concepts.map((concept, i) => (
                                                     <span
                                                         key={i}
-                                                        style={{
-                                                            backgroundColor: '#e8f5e9',
-                                                            padding: '0.3rem 0.8rem',
-                                                            borderRadius: '20px',
-                                                            fontSize: '0.9rem',
-                                                            color: '#2e7d32'
-                                                        }}
+                                                        className="concept-tag"
                                                     >
                                                         {concept}
                                                     </span>
@@ -534,16 +462,16 @@ const RoadmapView: React.FC = () => {
 
                                     {/* 학습 단계 */}
                                     {selectedTask.details.steps && selectedTask.details.steps.length > 0 && (
-                                        <div style={{ marginBottom: '1.5rem' }}>
-                                            <h3 style={{ fontSize: '1.1rem', color: '#0984e3', marginBottom: '0.5rem' }}>📚 학습 단계</h3>
+                                        <div className="roadmap-modal-section">
+                                            <h3 className="roadmap-modal-section-title steps">📚 학습 단계</h3>
                                             <ol style={{ marginLeft: '1.5rem' }}>
                                                 {selectedTask.details.steps.map((step, i) => (
                                                     <li key={i} style={{ marginBottom: '0.8rem' }}>
-                                                        <strong>{step.title}</strong>
-                                                        <span style={{ color: '#888', fontSize: '0.85rem', marginLeft: '0.5rem' }}>
+                                                        <strong style={{ color: 'var(--text-primary)' }}>{step.title}</strong>
+                                                        <span className="step-duration">
                                                             ({step.duration})
                                                         </span>
-                                                        <p style={{ color: '#666', marginTop: '0.3rem', marginBottom: 0 }}>
+                                                        <p className="step-description">
                                                             {step.description}
                                                         </p>
                                                     </li>
@@ -554,9 +482,9 @@ const RoadmapView: React.FC = () => {
 
                                     {/* 추천 자료 */}
                                     {selectedTask.details.resources && selectedTask.details.resources.length > 0 && (
-                                        <div style={{ marginBottom: '1.5rem' }}>
-                                            <h3 style={{ fontSize: '1.1rem', color: '#e17055', marginBottom: '0.5rem' }}>📖 추천 자료</h3>
-                                            <ul style={{ marginLeft: '1.5rem', color: '#555' }}>
+                                        <div className="roadmap-modal-section">
+                                            <h3 className="roadmap-modal-section-title resources">📖 추천 자료</h3>
+                                            <ul className="roadmap-modal-list">
                                                 {selectedTask.details.resources.map((res, i) => (
                                                     <li key={i}>{res}</li>
                                                 ))}
@@ -566,39 +494,26 @@ const RoadmapView: React.FC = () => {
 
                                     {/* 팁 */}
                                     {selectedTask.details.tips && (
-                                        <div style={{
-                                            backgroundColor: '#fff9c4',
-                                            padding: '1rem',
-                                            borderRadius: '8px',
-                                            marginTop: '1rem'
-                                        }}>
+                                        <div className="tip-box">
                                             <strong>💭 팁:</strong> {selectedTask.details.tips}
                                         </div>
                                     )}
                                 </div>
                             ) : (
-                                <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                                <div className="empty-message">
                                     <p>아직 상세 내용이 생성되지 않았습니다.</p>
                                     <p style={{ fontSize: '0.9rem' }}>매일 자정에 자동으로 생성됩니다.</p>
                                 </div>
                             )}
 
                             {/* 완료 버튼 */}
-                            <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                            <div className="roadmap-modal-footer">
                                 <button
                                     onClick={() => {
                                         toggleTask(selectedTask.dayIndex, selectedTask.taskIndex, selectedTask.done, selectedTask.isToday);
                                         setSelectedTask(null);
                                     }}
-                                    style={{
-                                        backgroundColor: selectedTask.done ? '#ddd' : '#6c5ce7',
-                                        color: selectedTask.done ? '#666' : 'white',
-                                        border: 'none',
-                                        padding: '0.8rem 2rem',
-                                        borderRadius: '8px',
-                                        fontSize: '1rem',
-                                        cursor: 'pointer'
-                                    }}
+                                    className={`complete-btn ${selectedTask.done ? 'inactive' : 'active'}`}
                                 >
                                     {selectedTask.done ? '완료 취소' : '✓ 완료'}
                                 </button>

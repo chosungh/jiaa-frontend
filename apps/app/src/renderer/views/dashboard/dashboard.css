@@ -22,16 +22,17 @@ html {
     width: 100%;
 }
 
-.header {
+.dashboard-container .header {
     box-sizing: border-box;
     padding: 32px 40px 0 40px;
 }
 
-.header h1 {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0 0 20px 0;
+.dashboard-container .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 30px 0;
     text-align: left;
+    color: var(--text-primary);
 }
 
 /* Dashboard Grid */
@@ -44,17 +45,18 @@ html {
     width: 100%;
     box-sizing: border-box;
     scrollbar-gutter: stable;
+    padding: 0 40px 32px 40px;
 }
 
 /* Cards */
 .card {
-    background: rgba(26, 26, 26, 0.8);
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 24px;
-    border: 1px solid #333;
+    border: 1px solid var(--card-border);
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--card-shadow);
 }
 
 .radar-card {
@@ -75,7 +77,7 @@ html {
 }
 
 .roadmap-item-box {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--input-bg);
     border-radius: 8px;
     padding: 16px;
     display: flex;
@@ -89,7 +91,7 @@ html {
 }
 
 .roadmap-item-box:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--active-bg);
     transform: translateY(-2px);
 }
 
@@ -115,7 +117,7 @@ html {
 
 .roadmap-item {
     padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -178,7 +180,7 @@ html {
 .create-btn {
     background: rgba(84, 65, 134, 0.4);
     color: var(--text-secondary);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border: 1px dashed var(--border-subtle);
     padding: 10px 0;
     width: 100%;
     border-radius: 8px;
@@ -227,20 +229,20 @@ html {
 }
 
 .radar-bg {
-    fill: #222;
-    stroke: #333;
+    fill: var(--input-bg);
+    stroke: var(--border-subtle);
     stroke-width: 1;
 }
 
 .radar-grid {
     fill: none;
-    stroke: #333;
+    stroke: var(--border-subtle);
     stroke-width: 1;
 }
 
 .radar-data {
-    fill: rgba(100, 100, 100, 0.5);
-    stroke: var(--text-muted);
+    fill: rgba(124, 92, 219, 0.3);
+    stroke: #7c5cdb;
     stroke-width: 2;
 }
 
@@ -282,7 +284,7 @@ html {
 }
 
 .progress-bar {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--border-subtle);
     height: 5px;
     border-radius: 3px;
     margin-top: 5px;
@@ -368,16 +370,17 @@ html {
 .grid-cell {
     width: 13px;
     height: 13px;
-    background-color: #161b22;
+    background-color: var(--input-bg);
     border-radius: 2px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
     box-sizing: border-box;
     /* Include border in size */
 }
 
 /* Contribution Levels */
 .grid-cell.level-0 {
-    background-color: #161b22;
+    background-color: transparent;
+    border-color: transparent;
 }
 
 .grid-cell.level-1 {
@@ -428,7 +431,7 @@ html {
 }
 
 .year-item:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--hover-bg);
     color: var(--text-secondary);
 }
 
@@ -457,8 +460,8 @@ html {
     width: 85%;
     max-width: 600px;
     height: 70vh;
-    background: rgba(26, 26, 26, 0.95);
-    border: 1px solid #333;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     overflow: hidden;
     display: flex;
@@ -516,7 +519,7 @@ html {
 }
 
 .create-roadmap-modal-content .messages-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--hover-bg);
     border-radius: 3px;
 }
 
@@ -547,6 +550,7 @@ html {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -569,9 +573,9 @@ html {
 }
 
 .create-roadmap-modal-content .ai-message .message-text {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--input-bg);
     color: var(--text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--input-border);
 }
 
 .create-roadmap-modal-content .loading-message {
@@ -584,7 +588,7 @@ html {
 .create-roadmap-modal-content .loading-dot {
     width: 8px;
     height: 8px;
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--text-secondary);
     border-radius: 50%;
     animation: dotPulse 1.4s infinite ease-in-out;
 }
@@ -602,10 +606,14 @@ html {
 }
 
 @keyframes dotPulse {
-    0%, 60%, 100% {
+
+    0%,
+    60%,
+    100% {
         transform: scale(0.8);
         opacity: 0.5;
     }
+
     30% {
         transform: scale(1.2);
         opacity: 1;
@@ -620,15 +628,15 @@ html {
     position: relative;
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: 8px;
     padding: 0;
     transition: all 0.3s ease;
 }
 
 .create-roadmap-modal-content .input-wrapper:focus-within {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--active-bg);
     border-color: var(--accent-purple);
 }
 

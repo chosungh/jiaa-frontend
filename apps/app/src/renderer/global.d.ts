@@ -36,4 +36,5 @@ declare global {
     interface Window {
         electronAPI: IElectronAPI;
     }
+    const electronAPI: IElectronAPI;
 }

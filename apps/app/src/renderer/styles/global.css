@@ -30,12 +30,12 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--text-muted);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--text-secondary);
 }
 
 /* Shared Button Styles */
@@ -54,4 +54,37 @@ a {
 
 a:hover {
     color: var(--text-primary);
+}
+
+/* Force Sidebar Theme Overrides (Resolving @repo/ui update issues) */
+.sidebar {
+    background-color: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-subtle) !important;
+}
+
+.nav-item:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+.nav-item.active {
+    background-color: var(--active-bg) !important;
+}
+
+.dropdown-menu {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-shadow: var(--card-shadow) !important;
+}
+
+.dropdown-item {
+    color: var(--text-primary) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+.nav-item img {
+    filter: var(--icon-filter);
+    transition: filter 0.3s ease;
 }

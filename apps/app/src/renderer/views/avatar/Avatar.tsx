@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Live2DManager } from '../../managers/Live2DManager';
 import { ChatUI, ChatMode } from '../../components/ChatUI';
 import { CHAT_WS_URL, AI_CHAT_API_BASE_URL } from '../../../common/constants';
@@ -14,53 +15,60 @@ interface TodayRoadmap {
     tasks: { content: string; time: string }[];
 }
 
+// 오늘 로드맵 데이터를 계산하는 함수
+const getTodayRoadmapFromData = (roadmaps: any[]): TodayRoadmap | null => {
+    if (!roadmaps || roadmaps.length === 0) return null;
+
+    // 가장 최근 로드맵에서 오늘 일차 찾기
+    const latestRoadmap = roadmaps[0];
+    const items = latestRoadmap.items || [];
+    if (items.length === 0) return null;
+
+    // 시작일 기준 오늘 일차 계산
+    const firstItem = items[0];
+    const startDate = new Date(firstItem.created_at);
+    const today = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const daysDiff = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysDiff >= 0 && daysDiff < items.length) {
+        const todayItem = items[daysDiff];
+        return {
+            name: latestRoadmap.name,
+            day: todayItem.day || daysDiff + 1,
+            tasks: (todayItem.tasks || []).map((t: any) => ({
+                content: t.content,
+                time: t.time
+            }))
+        };
+    }
+    return null;
+};
+
 const Avatar: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [chatMode, setChatMode] = useState<ChatMode>('chat');
-    const [todayRoadmap, setTodayRoadmap] = useState<TodayRoadmap | null>(null);
 
-    // 오늘 로드맵 가져오기
-    const fetchTodayRoadmap = useCallback(async () => {
-        try {
+    // React Query로 로드맵 데이터 가져오기
+    const { data: roadmapsData } = useQuery({
+        queryKey: ['roadmaps'],
+        queryFn: async () => {
             const response = await fetch(`${AI_CHAT_API_BASE_URL}/roadmaps`);
-            if (!response.ok) return;
+            if (!response.ok) return [];
+            return response.json();
+        },
+        staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    });
 
-            const roadmaps = await response.json();
-            if (!roadmaps || roadmaps.length === 0) return;
-
-            // 가장 최근 로드맵에서 오늘 일차 찾기
-            const latestRoadmap = roadmaps[0];
-            const items = latestRoadmap.items || [];
-            if (items.length === 0) return;
-
-            // 시작일 기준 오늘 일차 계산
-            const firstItem = items[0];
-            const startDate = new Date(firstItem.created_at);
-            const today = new Date();
-            startDate.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-
-            const daysDiff = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-
-            if (daysDiff >= 0 && daysDiff < items.length) {
-                const todayItem = items[daysDiff];
-                setTodayRoadmap({
-                    name: latestRoadmap.name,
-                    day: todayItem.day || daysDiff + 1,
-                    tasks: (todayItem.tasks || []).map((t: any) => ({
-                        content: t.content,
-                        time: t.time
-                    }))
-                });
-                console.log('[Avatar] 오늘 로드맵 로드:', todayItem);
-            }
-        } catch (err) {
-            console.error('[Avatar] 로드맵 로드 실패:', err);
-        }
-    }, []);
+    // 로드맵 데이터에서 오늘 로드맵 계산
+    const todayRoadmap = useMemo(() => {
+        return getTodayRoadmapFromData(roadmapsData || []);
+    }, [roadmapsData]);
 
     // 로드맵 컨텍스트 문자열 생성
     const roadmapContext = todayRoadmap ?
@@ -82,15 +90,15 @@ const Avatar: React.FC = () => {
                 if (isLoggedIn) {
                     console.log(`[Avatar] Access token available: ${!!tokenService.getAccessToken()}`);
                 }
-                const exists = await window.electronAPI.checkModelExists();
+                const exists = await electronAPI.checkModelExists();
                 if (!exists) {
                     setIsDownloading(true);
 
-                    const cleanupProgress = window.electronAPI.onModelDownloadProgress((progress) => {
+                    const cleanupProgress = electronAPI.onModelDownloadProgress((progress) => {
                         setDownloadProgress(progress);
                     });
 
-                    const result = await window.electronAPI.downloadModel();
+                    const result = await electronAPI.downloadModel();
                     cleanupProgress();
 
                     if (!result.success) {
@@ -118,7 +126,6 @@ const Avatar: React.FC = () => {
         };
 
         init();
-        fetchTodayRoadmap(); // 오늘 로드맵 로드
 
         const handleResize = () => {
             const manager = Live2DManager.getInstance();
@@ -129,7 +136,7 @@ const Avatar: React.FC = () => {
 
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
-            window.electronAPI?.showContextMenu();
+            electronAPI.showContextMenu();
         };
 
         window.addEventListener('contextmenu', handleContextMenu);

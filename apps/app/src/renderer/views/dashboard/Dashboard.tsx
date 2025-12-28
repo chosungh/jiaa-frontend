@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchContributionData, fetchDashboardStats, tryAutoLogin } from '../../services/api';
+import { fetchDashboardFullStats, tryAutoLogin } from '../../services/api';
 import { ContributionGraph } from '../../components/ContributionGraph';
 import { sendChatMessage, startRoadmapMode, parseRoadmapResponse, RoadmapResponse, getRoadmaps } from '../../services/chatApiService';
 import './dashboard.css';
@@ -47,18 +47,24 @@ const Dashboard: React.FC = () => {
         attemptAutoLogin();
     }, []);
 
-    // Fetch Dashboard Stats (토큰 준비 완료 후 실행)
-    const { data: radarData = [] } = useQuery({
-        queryKey: ['dashboardStats'],
-        queryFn: fetchDashboardStats,
-        enabled: isTokenReady, // 토큰 준비 완료 후에만 실행
+    // Fetch Dashboard Full Stats (레이더, 스트릭, 컨트리비셔 포함)
+    const { data: fullStats } = useQuery({
+        queryKey: ['dashboardFullStats', selectedYear],
+        queryFn: () => fetchDashboardFullStats(selectedYear),
+        enabled: isTokenReady,
         staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
     });
+
+    // radarData를 fullStats에서 가져오기
+    const radarData = fullStats?.radarData || [];
+
+    // Contribution Data - fullStats에서 가져오기
+    const contributionLevels = fullStats?.contributionData || [];
 
     // Calculate hexagon points for radar chart
     const calculateRadarPoints = (centerX: number, centerY: number, radius: number, values: number[]) => {
         const points = values.map((value, index) => {
-            const angle = (Math.PI / 3) * index - Math.PI / 2; // 60 degrees apart, starting from top
+            const angle = (Math.PI / 3) * index - Math.PI / 2;
             const r = (value / 100) * radius;
             const x = centerX + r * Math.cos(angle);
             const y = centerY + r * Math.sin(angle);
@@ -87,12 +93,6 @@ const Dashboard: React.FC = () => {
         const y = centerY + labelRadius * Math.sin(angle);
         return { x: x.toFixed(1), y: y.toFixed(1) };
     };
-
-    // Fetch Contribution Data
-    const { data: contributionLevels = [] } = useQuery({
-        queryKey: ['contributionData', selectedYear],
-        queryFn: () => fetchContributionData(selectedYear)
-    });
 
     // Fetch Roadmaps
     const { data: roadmapsData = [] } = useQuery({
@@ -153,8 +153,8 @@ const Dashboard: React.FC = () => {
         })
         .slice(0, 3);
 
-    const handleRoadmapClick = (roadmapId: number) => {
-        window.location.href = `../roadmap/roadmap.html?id=${roadmapId}`;
+    const handleRoadmapClick = (roadmapId: string) => {
+        navigate(`/roadmap/${roadmapId}`);
     };
 
     const handleOpenRoadmap = () => {
@@ -359,13 +359,13 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="card-body flex-row">
                             <div className="stat-box">
-                                <div className="streak-info">12일 연속 🔥</div>
-                                <div className="stat-value">10/8</div>
+                                <div className="streak-info">{fullStats?.currentStreak || 0}일 연속 🔥</div>
+                                <div className="stat-value">{fullStats?.completedItems || 0}/{fullStats?.totalDays || 0}</div>
                                 <div className="progress-bar">
-                                    <div className="progress-fill" style={{ width: '70%' }}></div>
+                                    <div className="progress-fill" style={{ width: `${fullStats && fullStats.totalDays > 0 ? Math.round((fullStats.completedItems / fullStats.totalDays) * 100) : 0}%` }}></div>
                                 </div>
                                 <div className="progress-bar secondary">
-                                    <div className="progress-fill" style={{ width: '40%' }}></div>
+                                    <div className="progress-fill" style={{ width: `${fullStats?.completedDays || 0}%` }}></div>
                                 </div>
                             </div>
                             <ContributionGraph

@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { useAppDispatch } from '../../store/hooks';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { signout as signoutAction } from '../../store/slices/authSlice';
+import { setTheme, type Theme } from '../../store/slices/themeSlice';
 import { signout } from '../../services/api';
 import './setting.css';
 
 const Setting: React.FC = () => {
-    const [screenMode, setScreenMode] = useState<'light' | 'dark' | 'system'>('dark');
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    const currentTheme = useAppSelector((state) => state.theme.theme);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleThemeChange = (newTheme: Theme) => {
+        dispatch(setTheme(newTheme));
+    };
 
     const handleLogout = async () => {
         if (isLoggingOut) return;
@@ -18,12 +25,12 @@ const Setting: React.FC = () => {
             await signout();
             dispatch(signoutAction());
             console.log('[Setting] Logout successful, redirecting to signin...');
-            window.electronAPI?.openSignin();
+            navigate('/signin');
         } catch (error) {
             console.error('[Setting] Logout error:', error);
             // 에러가 발생해도 로컬 토큰은 이미 삭제됨 (signout 함수에서 처리)
             dispatch(signoutAction());
-            window.electronAPI?.openSignin();
+            navigate('/signin');
         } finally {
             setIsLoggingOut(false);
         }
@@ -41,20 +48,20 @@ const Setting: React.FC = () => {
                 <div className="setting-section">
                     <div className="mode-buttons">
                         <button
-                            className={`mode-button ${screenMode === 'light' ? 'active' : ''}`}
-                            onClick={() => setScreenMode('light')}
+                            className={`mode-button ${currentTheme === 'light' ? 'active' : ''}`}
+                            onClick={() => handleThemeChange('light')}
                         >
                             화이트 모드
                         </button>
                         <button
-                            className={`mode-button ${screenMode === 'dark' ? 'active' : ''}`}
-                            onClick={() => setScreenMode('dark')}
+                            className={`mode-button ${currentTheme === 'dark' ? 'active' : ''}`}
+                            onClick={() => handleThemeChange('dark')}
                         >
                             다크 모드
                         </button>
                         <button
-                            className={`mode-button ${screenMode === 'system' ? 'active' : ''}`}
-                            onClick={() => setScreenMode('system')}
+                            className={`mode-button ${currentTheme === 'system' ? 'active' : ''}`}
+                            onClick={() => handleThemeChange('system')}
                         >
                             시스템 설정
                         </button>
