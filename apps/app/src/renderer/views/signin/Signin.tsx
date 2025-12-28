@@ -110,8 +110,8 @@ const Signin: React.FC = () => {
                     {errorMessage && (
                         <div className="error-message">{errorMessage}</div>
                     )}
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         className="signin-btn"
                         disabled={signinMutation.isPending}
                     >

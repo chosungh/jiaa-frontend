@@ -31,51 +31,50 @@ const Setting: React.FC = () => {
 
     return (
         <div className="setting-container">
-                <header className="header">
-                    <h1>설정</h1>
-                </header>
-                <div className="setting-content">
-                    <h2 className="setting-subtitle">화면 설정</h2>
+            <header className="header">
+                <h1>설정</h1>
+            </header>
+            <div className="setting-content">
+                <h2 className="setting-subtitle">화면 설정</h2>
 
-                    {/* 화면 모드 섹션 */}
-                    <div className="setting-section">
-                        <label className="setting-label">화면모드</label>
-                        <div className="mode-buttons">
-                            <button
-                                className={`mode-button ${screenMode === 'light' ? 'active' : ''}`}
-                                onClick={() => setScreenMode('light')}
-                            >
-                                화이트 모드
-                            </button>
-                            <button
-                                className={`mode-button ${screenMode === 'dark' ? 'active' : ''}`}
-                                onClick={() => setScreenMode('dark')}
-                            >
-                                다크 모드
-                            </button>
-                            <button
-                                className={`mode-button ${screenMode === 'system' ? 'active' : ''}`}
-                                onClick={() => setScreenMode('system')}
-                            >
-                                시스템 설정
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* 계정 섹션 */}
-                    <h2 className="setting-subtitle">계정</h2>
-                    <div className="setting-section">
-                        <p className="setting-description">현재 계정에서 로그아웃합니다.</p>
+                {/* 화면 모드 섹션 */}
+                <div className="setting-section">
+                    <div className="mode-buttons">
                         <button
-                            className="logout-button"
-                            onClick={handleLogout}
-                            disabled={isLoggingOut}
+                            className={`mode-button ${screenMode === 'light' ? 'active' : ''}`}
+                            onClick={() => setScreenMode('light')}
                         >
-                            {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
+                            화이트 모드
+                        </button>
+                        <button
+                            className={`mode-button ${screenMode === 'dark' ? 'active' : ''}`}
+                            onClick={() => setScreenMode('dark')}
+                        >
+                            다크 모드
+                        </button>
+                        <button
+                            className={`mode-button ${screenMode === 'system' ? 'active' : ''}`}
+                            onClick={() => setScreenMode('system')}
+                        >
+                            시스템 설정
                         </button>
                     </div>
                 </div>
+
+                {/* 계정 섹션 */}
+                <h2 className="setting-subtitle">계정</h2>
+                <div className="setting-section">
+                    <p className="setting-description">현재 계정에서 로그아웃합니다.</p>
+                    <button
+                        className="logout-button"
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                    >
+                        {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
+                    </button>
+                </div>
             </div>
+        </div>
     );
 };
 

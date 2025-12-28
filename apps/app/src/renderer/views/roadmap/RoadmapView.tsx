@@ -37,7 +37,7 @@ const RoadmapView: React.FC = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const roadmapId = urlParams.get('id');
-        
+
         if (roadmapId) {
             loadRoadmap(parseInt(roadmapId));
         } else {
@@ -52,14 +52,14 @@ const RoadmapView: React.FC = () => {
             console.log('[RoadmapView] 로드맵 데이터:', data);
             if (data) {
                 setRoadmapData(data);
-                
+
                 // 첫 번째 항목(day: 1)의 created_at을 기준으로 시작 날짜 설정
                 const firstItem = data.items?.find((item: RoadmapItem) => item.day === 1);
                 if (firstItem && firstItem.created_at) {
                     const start = new Date(firstItem.created_at);
                     console.log('[RoadmapView] 시작 날짜 (created_at):', start);
                     setStartDate(start);
-                    
+
                     // 시작 날짜가 있는 달을 기본으로 표시 (한 번만 설정)
                     if (!initialDateSet) {
                         setCurrentDate(new Date(start.getFullYear(), start.getMonth(), 1));
@@ -111,7 +111,7 @@ const RoadmapView: React.FC = () => {
                     const item = roadmapData.items[daysDiff];
                     roadmapDay = item.day;
                     content = item.content;
-                    
+
                     // 오늘이면 active, 과거면 completed
                     if (daysDiff === 0 && isToday) {
                         status = 'active';
@@ -121,8 +121,8 @@ const RoadmapView: React.FC = () => {
                 }
             }
 
-            days.push({ 
-                day: i, 
+            days.push({
+                day: i,
                 status,
                 roadmapDay,
                 content
@@ -144,14 +144,14 @@ const RoadmapView: React.FC = () => {
         targetDate.setHours(0, 0, 0, 0);
         const start = new Date(startDate);
         start.setHours(0, 0, 0, 0);
-        
+
         // 오늘 날짜인지 확인
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const isToday = targetDate.toDateString() === today.toDateString();
-        
+
         const daysDiff = Math.floor((targetDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-        
+
         console.log('[RoadmapView] 할 일 계산:', {
             targetDate: targetDate.toISOString(),
             start: start.toISOString(),
@@ -160,7 +160,7 @@ const RoadmapView: React.FC = () => {
             isSelected: !!selectedDate,
             isToday
         });
-        
+
         if (daysDiff >= 0 && daysDiff < roadmapData.items.length) {
             const item = roadmapData.items[daysDiff];
             return [{
@@ -171,7 +171,7 @@ const RoadmapView: React.FC = () => {
                 isToday: isToday
             }];
         }
-        
+
         return [];
     }, [roadmapData, startDate, selectedDate]);
 
@@ -180,19 +180,19 @@ const RoadmapView: React.FC = () => {
         if (!isToday) {
             return;
         }
-        
+
         try {
             const newStatus = !currentStatus;
             const result = await updateRoadmapItem(itemId, newStatus);
-            
+
             if (result && roadmapData) {
                 // roadmapData의 해당 항목 업데이트
-                const updatedItems = roadmapData.items.map(item => 
-                    item.id === itemId 
+                const updatedItems = roadmapData.items.map(item =>
+                    item.id === itemId
                         ? { ...item, is_completed: newStatus, completed_at: result.completed_at || item.completed_at }
                         : item
                 );
-                
+
                 setRoadmapData({
                     ...roadmapData,
                     items: updatedItems
@@ -263,21 +263,21 @@ const RoadmapView: React.FC = () => {
                                 {calendarDays.map((d, i) => {
                                     // 오늘 날짜인지 확인
                                     const today = new Date();
-                                    const isToday = d.day !== null && 
+                                    const isToday = d.day !== null &&
                                         new Date(currentDate.getFullYear(), currentDate.getMonth(), d.day).toDateString() === today.toDateString();
-                                    
+
                                     // 날짜 클릭 핸들러
                                     const handleDateClick = () => {
                                         if (d.day !== null) {
                                             const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), d.day);
                                             clickedDate.setHours(0, 0, 0, 0);
-                                            
+
                                             // 오늘 날짜를 클릭하면 선택 해제 (오늘로 돌아가기)
                                             if (isToday) {
                                                 setSelectedDate(null);
                                                 return;
                                             }
-                                            
+
                                             // 로드맵 항목이 있는 날짜만 선택 가능
                                             if (roadmapData && startDate) {
                                                 const daysDiff = Math.floor((clickedDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -287,19 +287,19 @@ const RoadmapView: React.FC = () => {
                                             }
                                         }
                                     };
-                                    
+
                                     // 선택된 날짜인지 확인
-                                    const isSelected = selectedDate && d.day !== null && 
+                                    const isSelected = selectedDate && d.day !== null &&
                                         selectedDate.getDate() === d.day &&
                                         selectedDate.getMonth() === currentDate.getMonth() &&
                                         selectedDate.getFullYear() === currentDate.getFullYear();
-                                    
+
                                     // 클릭 가능한 날짜: 오늘 날짜이거나 로드맵 항목이 있는 날짜
                                     const isClickable = isToday || !!d.roadmapDay;
-                                    
+
                                     return (
-                                        <div 
-                                            key={i} 
+                                        <div
+                                            key={i}
                                             className={`calendar-cell ${d.status} ${isSelected ? 'selected' : ''} ${isClickable ? 'clickable' : ''}`}
                                             title={d.content}
                                             onClick={isClickable ? handleDateClick : undefined}
@@ -317,7 +317,7 @@ const RoadmapView: React.FC = () => {
                     {/* Right Section: Todo */}
                     <section className="section today-todo">
                         <h2 className="section-label">
-                            {selectedDate 
+                            {selectedDate
                                 ? `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 할 일`
                                 : '오늘 할 일'
                             }
@@ -356,7 +356,7 @@ const RoadmapView: React.FC = () => {
                                     </ul>
                                 ) : (
                                     <div style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
-                                        {selectedDate 
+                                        {selectedDate
                                             ? `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일에는 로드맵에 등록된 일정이 없습니다.`
                                             : '오늘은 로드맵에 등록된 일정이 없습니다.'
                                         }
