@@ -122,24 +122,24 @@ const Dashboard: React.FC = () => {
     // 로드맵 기간 계산 함수
     const getRoadmapPeriod = (roadmap: any): string => {
         if (!roadmap.items || roadmap.items.length === 0) return '';
-        
+
         // 첫 번째 항목(day: 1)의 created_at을 시작 날짜로 사용
         const firstItem = roadmap.items.find((item: any) => item.day === 1);
         if (!firstItem || !firstItem.created_at) return '';
-        
+
         const startDate = new Date(firstItem.created_at);
         // 마지막 항목의 day를 기준으로 종료 날짜 계산
         const lastDay = Math.max(...roadmap.items.map((item: any) => item.day));
         const endDate = new Date(startDate);
         endDate.setDate(endDate.getDate() + (lastDay - 1));
-        
+
         const formatDate = (date: Date) => {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}.${month}.${day}`;
         };
-        
+
         return `${formatDate(startDate)} - ${formatDate(endDate)}`;
     };
 
@@ -202,10 +202,10 @@ const Dashboard: React.FC = () => {
                 if (roadmap) {
                     setRoadmapData(roadmap);
                     console.log('[Dashboard] 로드맵 생성 완료:', roadmap);
-                    
+
                     // 로드맵 목록 새로고침
                     queryClient.invalidateQueries({ queryKey: ['roadmaps'] });
-                    
+
                     // 로드맵 생성 완료 메시지 표시
                     const successMessage: Message = {
                         id: Date.now() + 1,
@@ -214,7 +214,7 @@ const Dashboard: React.FC = () => {
                         sender: 'ai'
                     };
                     setMessages(prev => [...prev, successMessage]);
-                    
+
                     // 2초 후 모달 닫기
                     setTimeout(() => {
                         handleCloseCreateModal();
@@ -242,7 +242,7 @@ const Dashboard: React.FC = () => {
         setMessages([]);
         setInputValue('');
         setRoadmapData(null);
-        
+
         // 로드맵 모드 시작
         try {
             const newSessionId = `roadmap-${Date.now()}`;
@@ -326,7 +326,7 @@ const Dashboard: React.FC = () => {
                                     {displayRoadmaps.map((roadmap: any) => {
                                         const period = getRoadmapPeriod(roadmap);
                                         return (
-                                            <li 
+                                            <li
                                                 key={roadmap.id}
                                                 className="roadmap-item-box"
                                                 onClick={() => handleRoadmapClick(roadmap.id)}
@@ -359,8 +359,8 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="card-body flex-row">
                             <div className="stat-box">
-                                <div className="stat-value">10/8</div>
                                 <div className="streak-info">12일 연속 🔥</div>
+                                <div className="stat-value">10/8</div>
                                 <div className="progress-bar">
                                     <div className="progress-fill" style={{ width: '70%' }}></div>
                                 </div>

@@ -179,8 +179,8 @@ const Signup: React.FC = () => {
                         {successMessage && (
                             <div className="success-message">{successMessage}</div>
                         )}
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className="signup-btn"
                             disabled={isLoading}
                         >
@@ -211,24 +211,24 @@ const Signup: React.FC = () => {
                         {successMessage && (
                             <div className="success-message">{successMessage}</div>
                         )}
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className="signup-btn"
                             disabled={isLoading}
                         >
                             {isLoading ? '확인 중...' : '인증 확인'}
                         </button>
                         <div className="verify-actions">
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="link-btn"
                                 onClick={handleResendCode}
                                 disabled={isLoading}
                             >
                                 인증 코드 재전송
                             </button>
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="link-btn"
                                 onClick={handleBackToEmail}
                                 disabled={isLoading}
@@ -288,16 +288,16 @@ const Signup: React.FC = () => {
                         {successMessage && (
                             <div className="success-message">{successMessage}</div>
                         )}
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className="signup-btn"
                             disabled={isLoading}
                         >
                             {isLoading ? '가입 중...' : '회원가입'}
                         </button>
                         <div className="verify-actions">
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="link-btn"
                                 onClick={handleBackToVerify}
                                 disabled={isLoading}
