@@ -45,8 +45,8 @@ class TokenService {
 
         try {
             // 저장된 리프레시 토큰 가져오기
-            const refreshToken = await window.electronAPI.getRefreshToken();
-            
+            const refreshToken = await electronAPI.getRefreshToken();
+
             if (!refreshToken) {
                 console.log('[TokenService] No refresh token found');
                 this.setAccessToken(null);
@@ -72,7 +72,7 @@ class TokenService {
             }
 
             const result = await response.json();
-            
+
             if (!result.success || !result.data) {
                 console.error('[TokenService] Invalid refresh response');
                 await this.clearTokens();
@@ -83,10 +83,10 @@ class TokenService {
 
             // 새 토큰 저장
             this.setAccessToken(accessToken);
-            
+
             // 새 리프레시 토큰이 있으면 저장 (토큰 로테이션)
             if (newRefreshToken) {
-                await window.electronAPI.saveRefreshToken(newRefreshToken);
+                await electronAPI.saveRefreshToken(newRefreshToken);
             }
 
             console.log('[TokenService] Token refreshed successfully');
@@ -108,15 +108,15 @@ class TokenService {
     // 모든 토큰 삭제 (로그아웃)
     async clearTokens(): Promise<void> {
         this.setAccessToken(null);
-        await window.electronAPI.deleteRefreshToken();
+        await electronAPI.deleteRefreshToken();
         console.log('[TokenService] All tokens cleared');
     }
 
     // 앱 시작 시 저장된 토큰으로 자동 로그인 시도
     async tryAutoLogin(): Promise<boolean> {
         try {
-            const refreshToken = await window.electronAPI.getRefreshToken();
-            
+            const refreshToken = await electronAPI.getRefreshToken();
+
             if (!refreshToken) {
                 console.log('[TokenService] No stored refresh token for auto-login');
                 return false;
@@ -133,7 +133,7 @@ class TokenService {
     // 로그인 성공 시 토큰 설정
     async setTokensOnLogin(accessToken: string, refreshToken: string): Promise<void> {
         this.setAccessToken(accessToken);
-        await window.electronAPI.saveRefreshToken(refreshToken);
+        await electronAPI.saveRefreshToken(refreshToken);
         console.log('[TokenService] Tokens saved on login');
     }
 

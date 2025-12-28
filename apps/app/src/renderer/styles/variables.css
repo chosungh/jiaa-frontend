@@ -1,21 +1,35 @@
 :root {
-    /* Colors */
-    --bg-primary: #0f1014;
-    --bg-secondary: #1a1b26;
-    --bg-tertiary: rgba(0, 0, 0, 0.2);
+    /* Light Mode (Default) */
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f3f5;
 
-    --text-primary: #ffffff;
-    --text-secondary: #cccccc;
-    --text-muted: #888888;
+    --text-primary: #1a1b1e;
+    --text-secondary: #495057;
+    --text-muted: #868e96;
 
     --accent-primary: #6e8efb;
     --accent-secondary: #a777e3;
     --accent-purple: #8A00C4;
 
-    --border-subtle: rgba(255, 255, 255, 0.1);
+    --border-subtle: rgba(0, 0, 0, 0.1);
+
+    /* Semantic Variables */
+    --card-bg: #ffffff;
+    --card-border: #e9ecef;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    --input-bg: #f1f3f5;
+    --input-border: #dee2e6;
+
+    --hover-bg: rgba(0, 0, 0, 0.04);
+    --active-bg: rgba(0, 0, 0, 0.08);
+
+    --icon-filter: invert(1) brightness(0.2);
+    /* Make white icons dark */
 
     /* Gradients */
-    --bg-gradient-main: radial-gradient(circle at top right, #1e204a, #0f1014 60%);
+    --bg-gradient-main: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 
     /* Spacing */
     --spacing-xs: 4px;
@@ -29,4 +43,33 @@
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-full: 50%;
+}
+
+[data-theme='dark'] {
+    /* Dark Mode */
+    --bg-primary: #0f1014;
+    --bg-secondary: #1a1b26;
+    --bg-tertiary: rgba(0, 0, 0, 0.2);
+
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
+
+    --border-subtle: rgba(255, 255, 255, 0.1);
+
+    /* Semantic Variables */
+    --card-bg: rgba(26, 26, 26, 0.8);
+    --card-border: #333;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+    --input-bg: rgba(255, 255, 255, 0.08);
+    --input-border: rgba(255, 255, 255, 0.1);
+
+    --hover-bg: rgba(255, 255, 255, 0.05);
+    --active-bg: rgba(255, 255, 255, 0.1);
+
+    --icon-filter: none;
+
+    /* Gradients */
+    --bg-gradient-main: radial-gradient(circle at top right, #1e204a, #0f1014 60%);
 }

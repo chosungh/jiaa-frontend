@@ -53,7 +53,7 @@ export class LAppTextureManager {
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = () => {
-                window.electronAPI.log(`LAppTextureManager: Texture loaded successfully: ${fileName} (${img.width}x${img.height})`);
+                electronAPI.log(`LAppTextureManager: Texture loaded successfully: ${fileName} (${img.width}x${img.height})`);
                 textureInfo.width = img.width;
                 textureInfo.height = img.height;
 
@@ -69,7 +69,7 @@ export class LAppTextureManager {
                 resolve(textureInfo);
             };
             img.onerror = () => {
-                window.electronAPI.log(`LAppTextureManager: Failed to load texture from ${fileName}`);
+                electronAPI.log(`LAppTextureManager: Failed to load texture from ${fileName}`);
                 resolve(null as any); // Or reject, but LAppModel expects null check
             };
             img.src = fileName;

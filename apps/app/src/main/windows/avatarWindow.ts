@@ -21,10 +21,14 @@ export const createAvatarWindow = (): BrowserWindow => {
         hasShadow: false,
         alwaysOnTop: true,
         resizable: false,
+        skipTaskbar: true, // Dock/Taskbar에서 숨김
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
+
+    // 모든 데스크탑/워크스페이스에서 보이도록 설정 (마스코트 스타일)
+    avatarWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
     // Enable click-through while still receiving mouse events
     // forward: true allows the renderer to still track mouse position

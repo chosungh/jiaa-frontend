@@ -29,14 +29,14 @@
 
 /* Setting Content Card */
 .setting-content {
-    background: rgba(26, 26, 26, 0.8);
+    background: var(--card-bg);
     border-radius: 12px;
     padding: 24px;
-    border: 1px solid #333;
+    border: 1px solid var(--card-border);
     width: 100%;
     max-width: 800px;
     box-sizing: border-box;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
 }
@@ -72,7 +72,7 @@
 
 .setting-description {
     font-size: 14px;
-    color: #bbb;
+    color: var(--text-muted);
     margin: 8px 0 0 0;
     line-height: 1.5;
     position: relative;
@@ -87,8 +87,8 @@
 .mode-button {
     flex: 1;
     padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--input-bg);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     font-size: 14px;
@@ -98,9 +98,9 @@
 }
 
 .mode-button:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--hover-bg);
     color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-primary);
 }
 
 .mode-button.active {

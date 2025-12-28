@@ -1,5 +1,6 @@
 import React from "react";
 import { HashRouter, Routes, Route } from "react-router-dom";
+import { useTheme } from "./hooks/useTheme";
 
 import Signin from "./views/signin/Signin";
 import Signup from "./views/signup/Signup";
@@ -17,17 +18,21 @@ import ProfileView from "./views/profile/ProfileView";
 import { MainLayout } from "./components/MainLayout/MainLayout";
 
 export const App = () => {
+    // 테마 적용 (전역) - useTheme 훅 사용으로 코드 중복 제거
+    useTheme();
+
     return (
         <HashRouter>
             <Routes>
                 {/* Routes without MainLayout */}
+                <Route path="/" element={<Signin />} />
                 <Route path="/signin" element={<Signin />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/first-create-loadmap" element={<FirstCreateLoadmap />} />
 
                 {/* Routes with MainLayout (avatar persists) */}
                 <Route element={<MainLayout />}>
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/statistics" element={<Statistics />} />
                     <Route path="/roadmap-list" element={<RoadmapList />} />
                     <Route path="/roadmap/:id" element={<RoadmapView />} />

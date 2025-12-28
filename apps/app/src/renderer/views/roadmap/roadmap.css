@@ -24,32 +24,7 @@
     flex-shrink: 0;
 }
 
-.back-btn {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0;
-}
 
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateX(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.back-btn:active {
-    transform: scale(0.95);
-}
 
 .main-title {
     margin: 0;
@@ -122,6 +97,10 @@
 }
 
 /* Calendar Specific Styles */
+.today-todo .content-card {
+    padding: 0;
+}
+
 .calendar-card {
     overflow-y: auto;
 }
@@ -152,7 +131,7 @@
 }
 
 .calendar-cell {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--input-bg);
     border: 1px solid var(--border-subtle);
     border-radius: 12px;
     padding: 8px;
@@ -166,7 +145,7 @@
 
 .calendar-cell:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--active-bg);
     border-color: #544186;
     z-index: 1;
 }
@@ -213,8 +192,8 @@
 }
 
 .calendar-cell.clickable:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: var(--active-bg);
+    border-color: var(--text-muted);
     transform: translateY(-2px);
 }
 
@@ -232,7 +211,7 @@
     gap: 20px;
     height: 100%;
     overflow-y: auto;
-    padding-right: 4px;
+    padding: 24px;
 }
 
 .card-placeholder-content::-webkit-scrollbar {
@@ -240,7 +219,7 @@
 }
 
 .card-placeholder-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--border-subtle);
     border-radius: 4px;
 }
 
@@ -261,19 +240,19 @@
     font-weight: 500;
     color: var(--text-secondary);
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--input-bg);
     border-radius: 8px;
     transition: background 0.2s;
 }
 
 .todo-list li:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--active-bg);
 }
 
 .todo-list .checkbox {
     width: 20px;
     height: 20px;
-    border: 2px solid #666;
+    border: 2px solid var(--text-muted);
     border-radius: 6px;
     flex-shrink: 0;
     display: flex;
@@ -295,4 +274,148 @@
 .todo-list li.done .checkbox {
     background: #10b981;
     border-color: #10b981;
+}
+
+.roadmap-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Modal Styles */
+.roadmap-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.roadmap-modal-content {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--card-shadow);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+}
+
+/* Header already defined above */
+
+.roadmap-modal-title {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.roadmap-modal-close-btn {
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.roadmap-modal-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.roadmap-modal-section {
+    margin-bottom: 1.5rem;
+}
+
+.roadmap-modal-section-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.roadmap-modal-section-title.objectives {
+    color: var(--accent-primary);
+}
+
+.roadmap-modal-section-title.concepts {
+    color: #00b894;
+}
+
+.roadmap-modal-section-title.steps {
+    color: #0984e3;
+}
+
+.roadmap-modal-section-title.resources {
+    color: #e17055;
+}
+
+.roadmap-modal-list {
+    margin-left: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.concept-tag {
+    background-color: var(--input-bg);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+}
+
+.step-duration {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+}
+
+.step-description {
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+    margin-bottom: 0;
+}
+
+.tip-box {
+    background-color: var(--input-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+.roadmap-modal-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.complete-btn {
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.complete-btn.active {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.complete-btn.inactive {
+    background-color: var(--input-bg);
+    color: var(--text-muted);
 }

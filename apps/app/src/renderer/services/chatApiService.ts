@@ -38,12 +38,12 @@ export async function sendChatMessage(
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
         };
-        
+
         // Authorization 헤더 추가 (토큰이 있는 경우)
         if (accessToken) {
             headers['Authorization'] = `Bearer ${accessToken}`;
         }
-        
+
         const response = await fetch(CHAT_API_URL, {
             method: 'POST',
             headers,
@@ -140,10 +140,10 @@ export function parseRoadmapResponse(text: string): RoadmapResponse | null {
  */
 export async function getRoadmaps(userId?: string): Promise<any[]> {
     try {
-        const url = userId 
+        const url = userId
             ? `${API_BASE_URL}/roadmaps?user_id=${userId}`
             : `${API_BASE_URL}/roadmaps`;
-        
+
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -215,3 +215,67 @@ export async function updateRoadmapItem(roadmapItemId: string, isCompleted: bool
     }
 }
 
+/**
+ * 활동 통계 인터페이스
+ */
+export interface ActivityStats {
+    currentStreak: number;
+    completedDays: number;
+    totalDays: number;
+    completedItems: number;
+    contributionData: number[][];
+}
+
+/**
+ * 사용자의 활동 통계를 조회합니다 (FastAPI).
+ * - currentStreak: 현재 연속 학습일수
+ * - completedDays: 완료한 학습일수
+ * - totalDays: 전체 로드맵 일수
+ * - contributionData: 연도별 활동 데이터 (ContributionGraph용)
+ */
+export async function getActivityStats(userId?: string, year?: number): Promise<ActivityStats> {
+    try {
+        let url = `${API_BASE_URL}/stats`;
+        const params = new URLSearchParams();
+
+        if (userId) {
+            params.append('user_id', userId);
+        }
+        if (year) {
+            params.append('year', year.toString());
+        }
+
+        if (params.toString()) {
+            url += `?${params.toString()}`;
+        }
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            currentStreak: data.current_streak || 0,
+            completedDays: data.completed_days || 0,
+            totalDays: data.total_days || 0,
+            completedItems: data.completed_items || 0,
+            contributionData: data.contribution_data || [],
+        };
+    } catch (error) {
+        console.error('활동 통계 조회 오류:', error);
+        return {
+            currentStreak: 0,
+            completedDays: 0,
+            totalDays: 0,
+            completedItems: 0,
+            contributionData: [],
+        };
+    }
+}

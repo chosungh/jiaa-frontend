@@ -48,7 +48,7 @@ interface VerifyEmailRequest {
 // API Error class
 export class ApiError extends Error {
     constructor(
-        public message: string, 
+        public message: string,
         public success: boolean = false,
         public statusCode?: number
     ) {
@@ -74,7 +74,7 @@ async function apiRequest<T>(
 ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     const isPublicEndpoint = PUBLIC_ENDPOINTS.some(e => endpoint.startsWith(e));
-    
+
     const defaultHeaders: HeadersInit = {
         'Content-Type': 'application/json',
     };
@@ -104,9 +104,9 @@ async function apiRequest<T>(
     // 401 에러 시 토큰 갱신 후 재시도 (public 엔드포인트 제외)
     if (response.status === 401 && !isPublicEndpoint && !skipAuth) {
         console.log('[API] 401 received, attempting token refresh...');
-        
+
         const newAccessToken = await tokenService.refreshAccessToken();
-        
+
         if (newAccessToken) {
             // 새 토큰으로 재시도
             console.log('[API] Retrying request with new token...');
@@ -121,13 +121,13 @@ async function apiRequest<T>(
         } else {
             // 토큰 갱신 실패 - 로그인 페이지로 이동
             console.log('[API] Token refresh failed, redirecting to login...');
-            window.electronAPI?.openSignin();
+            window.location.hash = '#/signin';
             throw new ApiError('세션이 만료되었습니다. 다시 로그인해주세요.', false, 401);
         }
     }
 
     let rawResult: unknown;
-    
+
     try {
         rawResult = await response.json();
         console.log('[API Response]', { endpoint, status: response.status, body: JSON.stringify(rawResult, null, 2) });
@@ -145,16 +145,16 @@ async function apiRequest<T>(
     // HTTP 에러 또는 success: false인 경우
     if (!response.ok || !result.success) {
         // 서버 에러 응답 형식 처리 (Spring Boot 기본 에러 형식 지원)
-        const errorBody = rawResult as { 
-            message?: string; 
-            error?: string; 
+        const errorBody = rawResult as {
+            message?: string;
+            error?: string;
             errors?: Array<{ defaultMessage?: string; field?: string }>;
             // Spring Boot validation 에러 형식
             fieldErrors?: Record<string, string>;
         };
-        
+
         let errorMessage = '요청에 실패했습니다.';
-        
+
         if (result.message && result.message.trim()) {
             errorMessage = result.message;
         } else if (errorBody.message && errorBody.message.trim()) {
@@ -162,7 +162,7 @@ async function apiRequest<T>(
         } else if (errorBody.errors && errorBody.errors.length > 0) {
             // Validation 에러 - 첫 번째 에러 메시지 사용
             const firstError = errorBody.errors[0];
-            errorMessage = firstError.field 
+            errorMessage = firstError.field
                 ? `${firstError.field}: ${firstError.defaultMessage}`
                 : firstError.defaultMessage || errorMessage;
         } else if (errorBody.fieldErrors) {
@@ -196,13 +196,13 @@ async function apiRequest<T>(
                     errorMessage = errorBody.error || `요청에 실패했습니다. (${response.status})`;
             }
         }
-        
+
         console.error('[API Error]', {
             endpoint,
             status: response.status,
             rawResult: JSON.stringify(rawResult, null, 2)
         });
-        
+
         throw new ApiError(errorMessage, false, response.status);
     }
 
@@ -212,13 +212,13 @@ async function apiRequest<T>(
 // ============ Auth APIs ============
 
 // 로그인
-export const signin = async ({ 
-    usernameOrEmail, 
-    password 
+export const signin = async ({
+    usernameOrEmail,
+    password
 }: SignInRequest): Promise<AuthResponse> => {
     const requestBody = { usernameOrEmail, password };
     console.log('[Signin API] Request body:', JSON.stringify(requestBody));
-    
+
     const response = await apiRequest<AuthResponse>('/api/v1/auth/signin', {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -226,7 +226,7 @@ export const signin = async ({
 
     // 로그인 성공 시 토큰 저장
     await tokenService.setTokensOnLogin(response.accessToken, response.refreshToken);
-    
+
     return response;
 };
 
@@ -340,14 +340,28 @@ interface RadarStat {
     value: number;
 }
 
-interface DashboardStatsResponse {
+export interface DashboardStatsResponse {
     radarData: RadarStat[];
+    currentStreak: number;
+    completedDays: number;
+    totalDays: number;
+    completedItems: number;
+    contributionData: number[][];
 }
 
-// 대시보드 통계 조회
+// 대시보드 통계 조회 (레이더 데이터만)
 export const fetchDashboardStats = async (): Promise<RadarStat[]> => {
     const response = await apiRequest<DashboardStatsResponse>('/api/analysis/stats', {
         method: 'GET',
     });
     return response.radarData;
+};
+
+// 대시보드 전체 통계 조회 (스트릭, 컨트리뷰션 포함)
+export const fetchDashboardFullStats = async (year?: number): Promise<DashboardStatsResponse> => {
+    const url = year ? `/api/analysis/stats?year=${year}` : '/api/analysis/stats';
+    const response = await apiRequest<DashboardStatsResponse>(url, {
+        method: 'GET',
+    });
+    return response;
 };

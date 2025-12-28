@@ -20,35 +20,45 @@ export const createTray = (): void => {
     }
 
     const icon = nativeImage.createFromPath(iconPath);
+    // macOS: Template images automatically adapt to light/dark tray themes
+    if (process.platform === 'darwin') {
+        icon.setTemplateImage(true);
+    }
     tray = new Tray(icon.resize({ width: 16, height: 16 }));
 
     const contextMenu = Menu.buildFromTemplate([
         {
             label: '아바타 모드로 전환',
             click: () => {
-                // Hide main window
                 const mainWindow = getMainWindow();
+                const avatarWindow = getAvatarWindow();
+
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.hide();
                 }
-                // Show avatar window
-                const avatarWindow = getAvatarWindow();
+
                 if (avatarWindow && !avatarWindow.isDestroyed()) {
                     avatarWindow.show();
+                    avatarWindow.focus();
+                } else {
+                    // Try to recreate if missing
+                    const { createAvatarWindow } = require('../windows/avatarWindow');
+                    createAvatarWindow().show();
                 }
             }
         },
         {
             label: '메인 윈도우 열기',
             click: () => {
-                // Hide avatar window
                 const avatarWindow = getAvatarWindow();
+                const mainWindow = getMainWindow();
+
                 if (avatarWindow && !avatarWindow.isDestroyed()) {
                     avatarWindow.hide();
                 }
-                // Show main window
-                const mainWindow = getMainWindow();
+
                 if (mainWindow && !mainWindow.isDestroyed()) {
+                    if (mainWindow.isMinimized()) mainWindow.restore();
                     mainWindow.show();
                     mainWindow.focus();
                 } else {
@@ -67,23 +77,31 @@ export const createTray = (): void => {
 
     tray.setToolTip('Live2D Mascot');
 
-    // 좌클릭: 메인 윈도우 토글 (아바타 윈도우와 상호 배타적)
+    // 좌클릭: 윈도우 모드 토글
     tray.on('click', () => {
         const mainWindow = getMainWindow();
         const avatarWindow = getAvatarWindow();
 
-        if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible()) {
-            // Main window visible -> hide it, show avatar
+        const isMainVisible = mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible() && !mainWindow.isMinimized();
+
+        if (isMainVisible) {
+            // Main -> Avatar
             mainWindow.hide();
             if (avatarWindow && !avatarWindow.isDestroyed()) {
                 avatarWindow.show();
+                avatarWindow.focus();
+            } else {
+                const { createAvatarWindow } = require('../windows/avatarWindow');
+                createAvatarWindow().show();
             }
         } else {
-            // Main window not visible -> show it, hide avatar
+            // Avatar -> Main (or recreate Main)
             if (avatarWindow && !avatarWindow.isDestroyed()) {
                 avatarWindow.hide();
             }
+
             if (mainWindow && !mainWindow.isDestroyed()) {
+                if (mainWindow.isMinimized()) mainWindow.restore();
                 mainWindow.show();
                 mainWindow.focus();
             } else {

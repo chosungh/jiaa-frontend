@@ -13,15 +13,77 @@
     justify-content: flex-start;
 }
 
+.main-layout .sidebar {
+    padding-top: 68px !important;
+}
+
 .title-bar-drag-area {
     position: fixed;
     top: 0;
     left: 0;
-    right: 138px;
+    right: 0;
     /* space for window controls (46px * 3) */
-    height: 32px;
+    height: 52px;
     -webkit-app-region: drag;
     z-index: 999;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.nav-controls {
+    position: fixed;
+    top: 14px;
+    left: 90px;
+    /* Traffic lights (approx 60-70px) + spacing */
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+    -webkit-app-region: no-drag;
+}
+
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.nav-btn:active {
+    transform: scale(0.95);
+}
+
+.app-title {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    -webkit-app-region: no-drag;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 13px;
+    /* Optional: Add background or border if needed to match exact "box" look */
+}
+
+.title-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    border-radius: 4px;
+    /* Slight rounding if square */
 }
 
 .main-content {
@@ -34,6 +96,7 @@
     position: relative;
     overflow-y: auto;
     -webkit-app-region: no-drag;
+    padding-top: 52px;
 }
 
 /* 아바타가 없을 때 메인 컨텐츠가 전체 너비 차지 */
@@ -47,7 +110,7 @@
     flex: 0 0 380px;
     height: 100vh;
     position: relative;
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 1px solid var(--border-subtle);
 }
 
 .avatar-sidebar-container.hidden {
@@ -61,45 +124,7 @@
 }
 
 
-/* Window Controls */
-.window-controls {
-    position: fixed;
-    top: 0;
-    right: 0;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center;
-    width: 138px;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4px);
-    border-bottom-left-radius: 8px;
-}
-
-.win-btn {
-    width: 46px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    -webkit-app-region: no-drag;
-}
-
-.win-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-}
-
-.win-btn.close-btn:hover {
-    background: #e81123;
-    color: white;
-}
+/* Window Controls removed for native traffic lights */
 
 /* Ensure the main layout handles drag area if needed */
 /* If the top area of Sidebar/MainContent should be draggable, use -webkit-app-region: drag */

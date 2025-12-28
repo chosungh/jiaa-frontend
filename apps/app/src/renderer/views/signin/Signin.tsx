@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { useAppDispatch } from '../../store/hooks';
 import { setCredentials } from '../../store/slices/authSlice';
@@ -12,6 +13,7 @@ const Signin: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [isAutoLogging, setIsAutoLogging] = useState(true);
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     // 앱 시작 시 자동 로그인 시도
     useEffect(() => {
@@ -22,8 +24,8 @@ const Signin: React.FC = () => {
                 if (success) {
                     console.log('[Signin] Auto-login successful');
                     // 토큰이 갱신되었으므로 대시보드로 이동
-                    // 이메일 정보는 서버에서 받아와야 하지만, 일단 빈 값으로 처리
-                    window.electronAPI.signinSuccess('');
+                    navigate('/dashboard');
+                    electronAPI.signinSuccess('');
                 } else {
                     console.log('[Signin] Auto-login failed, showing login form');
                 }
@@ -45,8 +47,10 @@ const Signin: React.FC = () => {
             // 토큰은 api.ts의 signin 함수에서 자동으로 저장됨
             dispatch(setCredentials({ accessToken: data.accessToken, email: data.email }));
             console.log('[Signin] Calling signinSuccess IPC');
+            // Navigate to Dashboard in SPA
+            navigate('/dashboard');
             // Notify Main process to switch views
-            window.electronAPI.signinSuccess(data.email);
+            electronAPI.signinSuccess(data.email);
         },
         onError: (error: Error) => {
             console.error('Signin failed:', error);
@@ -70,7 +74,7 @@ const Signin: React.FC = () => {
     };
 
     const handleSignup = () => {
-        window.electronAPI?.openSignup();
+        navigate('/signup');
     };
 
     // 자동 로그인 시도 중일 때 로딩 표시

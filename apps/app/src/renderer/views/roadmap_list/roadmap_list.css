@@ -10,39 +10,13 @@
     color: var(--text-primary);
     overflow-y: auto;
     font-family: 'Inter', -apple-system, sans-serif;
+    padding: 32px 40px;
 }
 
 .roadmap-page-header {
     display: flex;
     align-items: center;
     gap: 16px;
-}
-
-.back-btn {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateX(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.back-btn:active {
-    transform: scale(0.95);
 }
 
 .roadmap-page-header h1 {
@@ -86,7 +60,7 @@
     flex-direction: column;
     justify-content: flex-end;
     padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
 }
 
 /* Gradient overlay for better text readability if we add images later */
@@ -97,14 +71,14 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.2));
+    background: linear-gradient(to bottom, transparent, var(--hover-bg));
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 .roadmap-card-item:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--card-shadow);
     border-color: var(--accent-primary);
 }
 
@@ -135,7 +109,7 @@
 .card-progress {
     width: 100%;
     height: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--input-bg);
     border-radius: 2px;
     margin-top: 12px;
     overflow: hidden;
@@ -173,10 +147,10 @@
 }
 
 .roadmap-list-container::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--border-subtle);
     border-radius: 4px;
 }
 
 .roadmap-list-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--text-muted);
 }

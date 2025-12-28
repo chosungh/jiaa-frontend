@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import './first_create_loadmap.css';
 import { sendChatMessage, startRoadmapMode, parseRoadmapResponse, RoadmapResponse } from '../../services/chatApiService';
 
@@ -10,6 +11,7 @@ interface Message {
 }
 
 const FirstCreateLoadmap: React.FC = () => {
+    const navigate = useNavigate();
     const [inputValue, setInputValue] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -73,15 +75,9 @@ const FirstCreateLoadmap: React.FC = () => {
                 if (roadmap) {
                     setRoadmapData(roadmap);
                     console.log('[Roadmap] 로드맵 생성 완료:', roadmap);
-                    
-                    // "생성이 완료되었습니다" 메시지 표시 후 대시보드로 이동
+
                     setTimeout(() => {
-                        if (window.electronAPI && window.electronAPI.openDashboard) {
-                            window.electronAPI.openDashboard();
-                        } else {
-                            // fallback: 직접 URL 이동
-                            window.location.href = '../dashboard/dashboard.html';
-                        }
+                        navigate('/dashboard');
                     }, 2000); // 2초 후 이동
                 }
 
@@ -154,7 +150,7 @@ const FirstCreateLoadmap: React.FC = () => {
                     <div ref={messagesEndRef} />
                 </div>
             )}
-            
+
             {!roadmapData && (
                 <form className="input-form" onSubmit={handleSubmit}>
                     <div className="input-wrapper">
@@ -171,12 +167,12 @@ const FirstCreateLoadmap: React.FC = () => {
                             className="send-button"
                             disabled={!inputValue.trim() || isLoading || !sessionId}
                         >
-                            <svg 
-                                width="20" 
-                                height="20" 
-                                viewBox="0 0 24 24" 
-                                fill="none" 
-                                stroke="currentColor" 
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
                                 strokeWidth="2"
                             >
                                 <line x1="22" y1="2" x2="11" y2="13"></line>

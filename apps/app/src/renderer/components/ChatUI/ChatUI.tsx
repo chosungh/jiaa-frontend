@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ChatService, { ChatMessage, ConnectionStatus } from '../../services/ChatService';
 import './chat.css';
 
-export type ChatMode = 'chat' | 'roadmap';
+export type ChatMode = 'chat' | 'mode';
 
 interface ChatUIProps {
     /** WebSocket 서버 URL (선택사항 - 없으면 로컬 모드) */
@@ -149,7 +149,7 @@ const ChatUI: React.FC<ChatUIProps> = ({
 
     // Global Shortcut Listener (IPC)
     useEffect(() => {
-        const api = window.electronAPI;
+        const api = electronAPI;
         if (api && api.onOpenChat) {
             const cleanup = api.onOpenChat(() => {
                 setIsInputVisible(true);
@@ -200,7 +200,7 @@ const ChatUI: React.FC<ChatUIProps> = ({
 
     // 입력창 상태에 따라 마우스 이벤트 무시 여부 설정 (Click-through)
     useEffect(() => {
-        const api = window.electronAPI;
+        const api = electronAPI;
         if (api && api.setIgnoreMouseEvents) {
             if (isInputVisible) {
                 // 입력창이 열려있으면 마우스 이벤트 받음

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import './avatar_select.css';
 
 const Avatar_select: React.FC = () => {
+    const navigate = useNavigate();
     const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
 
     const handleAvatarSelect = (index: number) => {
@@ -14,7 +16,7 @@ const Avatar_select: React.FC = () => {
         if (selectedAvatar !== null) {
             console.log('Confirm avatar:', selectedAvatar);
             // first-create-loadmap 페이지로 이동
-            window.electronAPI.openFirstCreateLoadmap();
+            navigate('/first-create-loadmap');
         }
     };
 
@@ -26,10 +28,10 @@ const Avatar_select: React.FC = () => {
                 <div className="glow-top-left"></div>
                 <div className="glow-bottom-right"></div>
             </div>
-            
+
             <div className="content-wrapper">
                 <h1 className="title">아바타를 설정해주세요.</h1>
-                
+
                 <div className="avatar-options">
                     {[0, 1, 2].map((index) => (
                         <div
@@ -41,7 +43,7 @@ const Avatar_select: React.FC = () => {
                         </div>
                     ))}
                 </div>
-                
+
                 {selectedAvatar !== null && (
                     <button className="confirm-button" onClick={handleConfirm}>
                         확인
