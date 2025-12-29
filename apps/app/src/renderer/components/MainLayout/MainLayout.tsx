@@ -52,6 +52,7 @@ export const MainLayout: React.FC = () => {
     useEffect(() => {
         if (!shouldShowAvatar || !canvasRef.current) return;
 
+        // Temporarily disabled for debugging
         const manager = Live2DManager.getInstance();
         manager.initialize(canvasRef.current);
         manager.enableSync();
