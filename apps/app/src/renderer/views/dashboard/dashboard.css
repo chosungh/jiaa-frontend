@@ -323,6 +323,7 @@ html {
 
 .stat-box {
     background: #AF80FF !important;
+    background: var(--stat-box-bg) !important;
     border-radius: var(--radius-md);
     width: 140px;
     align-self: stretch;

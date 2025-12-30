@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { Sidebar, type SidebarItem } from '@repo/ui';
+import { Sidebar, type SidebarItem } from '../Sidebar/Sidebar';
 import { useAppDispatch } from '../../store/hooks';
 import { signout as signoutAction } from '../../store/slices/authSlice';
 import { signout } from '../../services/api';

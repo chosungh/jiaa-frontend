@@ -1,0 +1,102 @@
+.sidebar {
+    width: 60px;
+    height: 100% !important;
+    background-color: var(--bg-secondary);
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center;
+    justify-content: space-between !important;
+    padding: 16px 0;
+    box-sizing: border-box !important;
+    border-right: 1px solid var(--border-subtle);
+    -webkit-app-region: no-drag;
+}
+
+.nav-group-top {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+.nav-group-bottom {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+.nav-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+    -webkit-app-region: no-drag;
+}
+
+.nav-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.nav-item.active {
+    background-color: var(--active-bg);
+}
+
+.nav-item img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+}
+
+.nav-item.active img,
+.nav-item:hover img {
+    opacity: 1;
+}
+
+.nav-item.profile {
+    margin-bottom: 0;
+}
+
+.profile-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.nav-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+}
+
+.dropdown-menu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: 8px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 120px;
+    box-shadow: var(--card-shadow);
+    z-index: 1000;
+}
+
+.dropdown-item {
+    padding: 10px 16px;
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-bg);
+}
